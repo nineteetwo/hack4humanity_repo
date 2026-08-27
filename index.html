@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dolphy — Your Daily Mental Wellness Companion</title>
+  <meta name="description" content="Dolphy gives you science-backed daily mental wellness micro-tasks. Build healthy habits, track your mood, and feel better — one small step at a time." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- ===================== LANDING NAV ===================== -->
+  <nav class="landing-nav" role="navigation" aria-label="Main navigation">
+    <div class="landing-nav__logo">🐬 Dolphy</div>
+    <div class="landing-nav__actions">
+      <button class="theme-toggle" id="theme-toggle-landing" onclick="ThemeManager.toggle()" aria-label="Toggle light/dark mode">
+        <span class="theme-toggle__icon">🌙</span>
+      </button>
+      <button class="clay-btn clay-btn--ghost" id="btn-login-nav" onclick="App.navigate('login')">Log In</button>
+      <button class="clay-btn clay-btn--primary" id="btn-getstarted-nav" onclick="App.navigate('signup')">Get Started</button>
+    </div>
+  </nav>
+
+  <!-- ===================== HERO ===================== -->
+  <section class="hero" aria-label="Hero section">
+    <div class="hero__content">
+      <div class="hero__badge">🌿 Science-backed daily wellness tasks</div>
+      <h1 class="hero__title">Feel Better,<br/><span class="text-gradient">Every Day.</span></h1>
+      <p class="hero__subtitle">Dolphy guides you through bite-sized mental wellness tasks — rooted in CBT and mindfulness — that help you build resilience, reduce anxiety, and feel more like yourself again.</p>
+      <div class="hero__cta-group">
+        <button class="clay-btn clay-btn--primary clay-btn--xl" id="btn-start-journey" onclick="App.navigate('signup')">Start My Journey 🌱</button>
+        <button class="clay-btn clay-btn--ghost clay-btn--xl" id="btn-have-account" onclick="App.navigate('login')">I Have an Account</button>
+      </div>
+      <div class="hero__social-proof">
+        <span>Trusted by</span>
+        <div class="avatar-stack" aria-hidden="true">
+          <div class="avatar-chip">🙂</div>
+          <div class="avatar-chip">🧘</div>
+          <div class="avatar-chip">💪</div>
+          <div class="avatar-chip">🌸</div>
+        </div>
+        <span><strong>50,000+</strong> people on their wellness journey</span>
+      </div>
+    </div>
+    <div class="hero__illustration" aria-hidden="true">
+      <div class="hero__emoji-showcase">
+        <div class="emoji-float emoji-float--1">🌸</div>
+        <div class="emoji-float emoji-float--2">✨</div>
+        <div class="emoji-float emoji-float--3">🦋</div>
+        <div class="emoji-float emoji-float--4">🌿</div>
+        <div class="hero__main-emoji">🐬</div>
+        <div class="hero__stat-pill pill-1"><span>🪴</span> 14 Day Streak!</div>
+        <div class="hero__stat-pill pill-2"><span>⚡</span> +10 pts</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== FEATURE STRIP ===================== -->
+  <section class="feature-strip" aria-label="Features">
+    <div class="feature-card">
+      <div class="feature-card__icon" aria-hidden="true">🧠</div>
+      <h3>Science-Backed</h3>
+      <p>Every task is grounded in Cognitive Behavioral Therapy, DBT, and mindfulness research — designed with clinical psychologists.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-card__icon" aria-hidden="true">🎯</div>
+      <h3>Daily Micro-Tasks</h3>
+      <p>Small, achievable tasks — just 5–20 minutes a day — that build emotional resilience over time without overwhelm.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-card__icon" aria-hidden="true">📈</div>
+      <h3>Track Your Growth</h3>
+      <p>See your mood trends, wellness streaks, and progress milestones. Your growth is real and worth celebrating.</p>
+    </div>
+  </section>
+
+  <!-- ===================== FEATURE ROWS ===================== -->
+  <section class="feature-rows" aria-label="Detailed features">
+    <div class="feature-row">
+      <div class="feature-row__visual">
+        <div class="feature-mockup">
+          <div class="mockup-emoji-big" aria-hidden="true">🧘</div>
+          <div class="mockup-card">
+            <div class="mockup-bar" style="width:80%"></div>
+            <div class="mockup-bar" style="width:55%"></div>
+            <div class="mockup-bar" style="width:70%"></div>
+          </div>
+        </div>
+      </div>
+      <div class="feature-row__text">
+        <h2>Built on Research</h2>
+        <p>We collaborated with licensed therapists and researchers to build a structured wellness curriculum. From breathing exercises to cognitive reframing — every task has a reason behind it, and a real impact on your mental health.</p>
+      </div>
+    </div>
+
+    <div class="feature-row feature-row--reverse">
+      <div class="feature-row__text">
+        <h2>Build Lasting Habits</h2>
+        <p>Consistency is everything. Dolphy's streak system, daily reminders, and gentle XP rewards make it easy — and actually enjoyable — to build a daily mental wellness practice that sticks.</p>
+      </div>
+      <div class="feature-row__visual">
+        <div class="feature-mockup">
+          <div class="mockup-emoji-big" aria-hidden="true">🪴</div>
+          <div class="streak-display">
+            <span class="streak-icon" aria-hidden="true">🌿</span>
+            <span class="streak-number">14</span>
+            <span class="streak-label">Day Streak</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== CTA BANNER ===================== -->
+  <section class="cta-banner" aria-label="Call to action">
+    <h2>Your mental health deserves daily attention.</h2>
+    <p>Join thousands of people using Dolphy to build healthier minds, one task at a time.</p>
+    <button class="clay-btn clay-btn--primary clay-btn--xl" id="btn-cta-bottom" onclick="App.navigate('signup')">
+      Begin Your Journey 🌱
+    </button>
+  </section>
+
+  <!-- ===================== FOOTER ===================== -->
+  <footer class="landing-footer" role="contentinfo">
+    <div class="footer-wave" aria-hidden="true">
+      <svg viewBox="0 0 1440 120" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M0,60 C240,120 480,0 720,60 C960,120 1200,0 1440,60 L1440,120 L0,120 Z" fill="#0E6EAB"/>
+      </svg>
+    </div>
+    <div class="footer-body">
+      <div class="footer-top">
+        <div class="footer-brand">
+          <div class="footer-logo">🐬 Dolphy</div>
+          <p>Daily mental wellness tasks to help you feel more like yourself. Start your journey today.</p>
+        </div>
+        <div class="footer-links">
+          <div class="footer-col">
+            <h4>About</h4>
+            <a href="#">Our Mission</a>
+            <a href="#">Research</a>
+            <a href="#">Careers</a>
+            <a href="#">Press</a>
+          </div>
+          <div class="footer-col">
+            <h4>Product</h4>
+            <a href="#">Dolphy App</a>
+            <a href="#">For Clinics</a>
+            <a href="#">For Schools</a>
+            <a href="#">API</a>
+          </div>
+          <div class="footer-col">
+            <h4>Support</h4>
+            <a href="#">Help Center</a>
+            <a href="#">Crisis Resources</a>
+            <a href="#">Privacy</a>
+            <a href="#">Terms</a>
+          </div>
+          <div class="footer-col">
+            <h4>Community</h4>
+            <a href="#">Blog</a>
+            <a href="#">Instagram</a>
+            <a href="#">Twitter/X</a>
+            <a href="#">YouTube</a>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>⚠️ Dolphy is a wellness support tool and is not a substitute for professional mental health treatment. If you are in crisis, please contact your local emergency services or a mental health crisis line.</p>
+        <p style="margin-top:8px;">© 2026 Dolphy Inc. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

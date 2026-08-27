@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Daily Wellness Path — Dolphy</title>
+  <meta name="description" content="Your daily mental wellness learning path on Dolphy." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- Mobile Topbar -->
+  <header class="mobile-topbar" id="mobile-topbar" role="banner">
+    <div class="mobile-topbar__logo">🐬 Dolphy</div>
+    <div class="mobile-topbar__stats" role="status" aria-label="Your stats">
+      <div class="stat-chip" title="Day Streak"><span class="stat-chip__icon" aria-hidden="true">🪴</span><span class="stat-chip__val" id="m-streak">—</span></div>
+      <div class="stat-chip" title="Peace Tea"><span class="stat-chip__icon" aria-hidden="true">🍵</span><span class="stat-chip__val" id="m-hp">—</span></div>
+      <div class="stat-chip" title="Wellness Points"><span class="stat-chip__icon" aria-hidden="true">⚡</span><span class="stat-chip__val" id="m-xp">—</span></div>
+      <button class="theme-toggle theme-toggle--sm" id="theme-toggle-mobile" onclick="ThemeManager.toggle()" aria-label="Toggle theme">
+        <span class="theme-toggle__icon">🌙</span>
+      </button>
+    </div>
+  </header>
+
+  <div class="app-layout">
+
+    <!-- LEFT SIDEBAR -->
+    <aside class="sidebar-left" id="sidebar-left" role="navigation" aria-label="App navigation">
+      <div class="sidebar-left__logo">🐬 Dolphy</div>
+      <nav class="sidebar-nav" id="sidebar-nav" aria-label="Main menu"></nav>
+      <div class="sidebar-left__footer">
+        <button class="theme-toggle theme-toggle--sidebar" onclick="ThemeManager.toggle()" aria-label="Toggle theme">
+          <span class="theme-toggle__icon">🌙</span>
+          <span class="theme-toggle__label">Theme</span>
+        </button>
+        <button class="clay-btn clay-btn--ghost clay-btn--sm sidebar-logout" id="btn-exit-app" onclick="App.navigate('landing')">← Exit</button>
+      </div>
+    </aside>
+
+    <!-- MAIN CONTENT FEED -->
+    <main class="main-feed" id="main-feed" role="main">
+
+      <!-- LEARN PANEL -->
+      <div class="content-panel" id="panel-learn">
+        <div class="section-banner" id="section-banner">
+          <button class="section-banner__back" id="btn-prev-section" onclick="PathManager.prevSection()" aria-label="Previous section">←</button>
+          <div class="section-banner__text">
+            <div class="section-banner__label" id="banner-label">SECTION 1, UNIT 1</div>
+            <div class="section-banner__title" id="banner-title">Daily Wellness Foundations</div>
+          </div>
+          <button class="section-banner__next" id="btn-next-section" onclick="PathManager.nextSection()" aria-label="Next section">→</button>
+        </div>
+        <div class="node-path-canvas" id="node-path-canvas" role="list" aria-label="Wellness task path"></div>
+      </div>
+
+      <!-- CHESS PANEL -->
+      <div class="content-panel" id="panel-chess" style="display:none;"></div>
+
+      <!-- PLACEHOLDER PANELS -->
+      <div class="content-panel" id="panel-leaderboards" style="display:none;">
+        <div class="placeholder-panel"><div class="placeholder-panel__emoji">🏆</div><h2>Leaderboards</h2><p>Complete more daily tasks to unlock competitive wellness rankings!</p></div>
+      </div>
+      <div class="content-panel" id="panel-quests" style="display:none;">
+        <div class="placeholder-panel"><div class="placeholder-panel__emoji">🗺️</div><h2>Weekly Quests</h2><p>Special weekly wellness challenges appear here. Keep up your streak!</p></div>
+      </div>
+      <div class="content-panel" id="panel-shop" style="display:none;">
+        <div class="placeholder-panel"><div class="placeholder-panel__emoji">🛍️</div><h2>Shop</h2><p>Spend your Gems on themes, power-ups, and wellness extras — coming soon!</p></div>
+      </div>
+      <div class="content-panel" id="panel-profile" style="display:none;">
+        <div class="placeholder-panel"><div class="placeholder-panel__emoji">👤</div><h2>Profile</h2><p>View your wellness history, mood trends, and journal entries — coming soon!</p></div>
+      </div>
+      <div class="content-panel" id="panel-matches" style="display:none;">
+        <div class="placeholder-panel"><div class="placeholder-panel__emoji">🤝</div><h2>Buddy System</h2><p>Connect with a wellness buddy and support each other — coming soon!</p></div>
+      </div>
+      <div class="content-panel" id="panel-more" style="display:none;">
+        <div class="placeholder-panel"><div class="placeholder-panel__emoji">⚙️</div><h2>Settings</h2><p>Notification preferences, accessibility options, and more — coming soon!</p></div>
+      </div>
+    </main>
+
+    <!-- RIGHT SIDEBAR -->
+    <aside class="sidebar-right" id="sidebar-right" role="complementary" aria-label="Stats and quests">
+
+      <!-- User Stats Card -->
+      <div class="right-card" id="user-stats-card">
+        <div class="right-card__header"><h3>My Progress</h3></div>
+        <div class="stats-grid" role="list" aria-label="User statistics">
+          <div class="stats-item stats-item--streak" role="listitem">
+            <div class="stats-item__icon" aria-hidden="true">🪴</div>
+            <div class="stats-item__info"><span class="stats-item__val" id="d-streak">—</span><span class="stats-item__label">Day Streak</span></div>
+          </div>
+          <div class="stats-item stats-item--hp" role="listitem">
+            <div class="stats-item__icon" aria-hidden="true">🍵</div>
+            <div class="stats-item__info"><span class="stats-item__val" id="d-hp">—</span><span class="stats-item__label">Peace Tea</span></div>
+          </div>
+          <div class="stats-item stats-item--xp" role="listitem">
+            <div class="stats-item__icon" aria-hidden="true">⚡</div>
+            <div class="stats-item__info"><span class="stats-item__val" id="d-xp">—</span><span class="stats-item__label">Wellness Pts</span></div>
+          </div>
+          <div class="stats-item stats-item--gems" role="listitem">
+            <div class="stats-item__icon" aria-hidden="true">💎</div>
+            <div class="stats-item__info"><span class="stats-item__val" id="d-gems">—</span><span class="stats-item__label">Gems</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Daily Quests Card -->
+      <div class="right-card" id="daily-quests-card">
+        <div class="right-card__header">
+          <h3>Daily Quests</h3>
+          <button class="view-all-btn" id="btn-view-all-quests">View All</button>
+        </div>
+        <div id="daily-quests-list"></div>
+      </div>
+
+      <!-- Leaderboard Teaser -->
+      <div class="right-card" id="leaderboard-card">
+        <div class="right-card__header"><h3>🏆 Wellness Rankings</h3></div>
+        <div class="leaderboard-unlock">
+          <div class="leaderboard-unlock__icon" aria-hidden="true">🔒</div>
+          <p>Complete <strong>2 more tasks</strong> to unlock wellness rankings!</p>
+          <div class="xp-progress-wrap">
+            <div class="xp-progress-bar" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" aria-label="Ranking unlock progress">
+              <div class="xp-progress-fill" style="width:60%"></div>
+            </div>
+            <span class="xp-progress-label">3/5 Tasks</span>
+          </div>
+        </div>
+        <div id="leaderboard-preview"></div>
+      </div>
+
+      <!-- CTA Card -->
+      <div class="right-card right-card--cta" id="cta-card">
+        <p>🌱 Save your progress and access Dolphy across all your devices!</p>
+        <button class="clay-btn clay-btn--primary clay-btn--full" id="btn-create-profile-cta" onclick="App.navigate('signup')">Create a Free Profile</button>
+        <button class="clay-btn clay-btn--ghost clay-btn--full" id="btn-signin-cta" onclick="App.navigate('login')">Sign In</button>
+      </div>
+    </aside>
+  </div>
+
+  <!-- Mobile Bottom Nav -->
+  <nav class="mobile-bottom-nav" id="mobile-bottom-nav" aria-label="Mobile navigation"></nav>
+
+  <!-- Drawer Overlay -->
+  <div class="drawer-overlay" id="drawer-overlay" role="presentation"></div>
+
+  <!-- Stats Drawer (mobile) -->
+  <div class="mobile-drawer" id="stats-drawer" role="dialog" aria-modal="true" aria-label="Stats and quests">
+    <div class="mobile-drawer__header">
+      <h3>My Progress &amp; Quests</h3>
+      <button class="drawer-close-btn" id="btn-close-drawer" aria-label="Close">✕</button>
+    </div>
+    <div class="mobile-drawer__body" id="stats-drawer-body"></div>
+  </div>
+
+  <!-- Lesson/Task Preview Modal -->
+  <div class="modal-overlay" id="lesson-modal" role="dialog" aria-modal="true" aria-label="Task details">
+    <div class="lesson-modal-card" id="lesson-modal-card"></div>
+  </div>
+
+  <script src="app.js"></script>
+  <script src="chess.js"></script>
+  <script src="learn.js"></script>
+</body>
+</html>

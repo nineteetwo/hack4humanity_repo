@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Create Your Account — Dolphy</title>
+  <meta name="description" content="Sign up for Dolphy and start your daily mental wellness journey today." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <div class="auth-page">
+    <!-- Back button -->
+    <button class="auth-page__back" id="btn-back" aria-label="Back to home">←</button>
+    <!-- Corner login link -->
+    <button class="auth-page__login-corner clay-btn clay-btn--ghost clay-btn--sm" id="btn-login-corner" onclick="App.navigate('login')">LOG IN</button>
+    <!-- Theme toggle -->
+    <button class="auth-page__theme-toggle theme-toggle theme-toggle--sm" onclick="ThemeManager.toggle()" aria-label="Toggle theme">
+      <span class="theme-toggle__icon">🌙</span>
+    </button>
+
+    <div class="auth-card" role="main">
+      <div class="auth-card__logo">🐬 Dolphy</div>
+      <h1 class="auth-card__title">Create your profile</h1>
+      <p class="auth-card__subtitle">Your wellness journey starts here 🌱</p>
+
+      <form class="auth-form" id="signup-form" novalidate>
+        <div class="form-field">
+          <input type="text" class="clay-input" id="signup-name" placeholder="Name (optional)" autocomplete="name" />
+        </div>
+        <div class="form-field">
+          <input type="email" class="clay-input" id="signup-email" placeholder="Email address" required autocomplete="email" />
+        </div>
+        <div class="form-field">
+          <input type="password" class="clay-input" id="signup-password" placeholder="Password (min. 6 characters)" required autocomplete="new-password" />
+          <button type="button" class="password-toggle-btn" id="btn-toggle-password" aria-label="Toggle password visibility">👁</button>
+        </div>
+        <button type="submit" class="clay-btn clay-btn--primary clay-btn--full" id="btn-create-account">
+          Create Account 🚀
+        </button>
+      </form>
+
+      <div class="auth-divider"><span>OR</span></div>
+
+      <div class="auth-social">
+        <button class="clay-btn clay-btn--social" id="btn-google-signup">
+          <span class="social-icon social-icon--google">G</span> Google
+        </button>
+        <button class="clay-btn clay-btn--social" id="btn-facebook-signup">
+          <span class="social-icon social-icon--fb">f</span> Facebook
+        </button>
+      </div>
+
+      <p class="auth-legal">By signing up, you agree to our <a href="#">Terms</a> and <a href="#">Privacy Policy</a>. This site is protected by reCAPTCHA Enterprise.</p>
+      <p class="auth-switch">Already have an account? <a href="login.html" id="link-login">Log in</a></p>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+  <script src="signup.js"></script>
+</body>
+</html>

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Daily Task — Dolphy</title>
+  <meta name="description" content="Complete your daily wellness task on Dolphy." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="quest-body">
+
+  <!-- Topbar -->
+  <header class="quest-topbar" role="banner">
+    <button class="quest-topbar__back" id="btn-back" aria-label="Back to path">
+      ← Back
+    </button>
+    <div class="quest-topbar__center">
+      <span class="quest-topbar__emoji" id="quest-nav-emoji">🌅</span>
+      <span class="quest-topbar__title" id="quest-title">Daily Task</span>
+    </div>
+    <div class="quest-topbar__right">
+      <div class="quest-xp-badge" id="quest-xp-badge">+10 pts</div>
+      <button class="theme-toggle theme-toggle--sm" onclick="ThemeManager.toggle()" aria-label="Toggle theme">
+        <span class="theme-toggle__icon">🌙</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Task content (injected by QuestSolver) -->
+  <main class="quest-main" id="quest-content" role="main">
+    <div class="qs-loading" aria-live="polite">
+      <div class="qs-loading__emoji" aria-hidden="true">🌿</div>
+      <p>Loading your task...</p>
+    </div>
+  </main>
+
+  <!-- Completion Overlay -->
+  <div class="quest-complete-overlay" id="quest-complete-overlay" role="dialog" aria-modal="true" aria-label="Task complete">
+    <div class="qco-card">
+      <div class="qco-emoji" id="overlay-emoji" aria-hidden="true">✅</div>
+      <h2 class="qco-title" id="overlay-title">Task Complete!</h2>
+      <div class="qco-xp" id="overlay-xp">+10 Wellness Points</div>
+      <p class="qco-message">Every small step is real progress. Keep going — you're doing amazing.</p>
+      <button class="clay-btn clay-btn--primary clay-btn--xl" id="overlay-back-btn">
+        🌱 Continue Journey
+      </button>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+  <script src="quest.js"></script>
+</body>
+</html>
