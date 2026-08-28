@@ -345,8 +345,7 @@ class NodePath {
 
     if (this.nodes.length < 2) return;
 
-    const containerRect = this.container.getBoundingClientRect();
-    const canvasH       = this.container.scrollHeight;
+    const canvasH = this.container.scrollHeight;
 
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     svg.classList.add('path-svg');
@@ -355,25 +354,33 @@ class NodePath {
     svg.setAttribute('aria-hidden', 'true');
     svg.style.cssText = `position:absolute;top:0;left:0;width:100%;height:${canvasH}px;pointer-events:none;z-index:0;overflow:visible;`;
 
+    /** Get element center relative to this.container using offsetTop/offsetLeft walk */
+    const getCenterRelToContainer = (el) => {
+      let x = el.offsetLeft + el.offsetWidth  / 2;
+      let y = el.offsetTop  + el.offsetHeight / 2;
+      let parent = el.offsetParent;
+      while (parent && parent !== this.container) {
+        x += parent.offsetLeft;
+        y += parent.offsetTop;
+        parent = parent.offsetParent;
+      }
+      return { x, y };
+    };
+
     for (let i = 1; i < this.nodes.length; i++) {
       const prevBtn = this.nodes[i - 1]._btn;
       const currBtn = this.nodes[i]._btn;
       if (!prevBtn || !currBtn) continue;
 
-      const pr = prevBtn.getBoundingClientRect();
-      const cr = currBtn.getBoundingClientRect();
-
-      const x1 = pr.left  - containerRect.left + pr.width  / 2;
-      const y1 = pr.top   - containerRect.top  + pr.height / 2;
-      const x2 = cr.left  - containerRect.left + cr.width  / 2;
-      const y2 = cr.top   - containerRect.top  + cr.height / 2;
+      const p1 = getCenterRelToContainer(prevBtn);
+      const p2 = getCenterRelToContainer(currBtn);
 
       const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-      line.setAttribute('x1', x1);
-      line.setAttribute('y1', y1);
-      line.setAttribute('x2', x2);
-      line.setAttribute('y2', y2);
-      line.setAttribute('stroke',          'rgba(128,90,200,0.28)');
+      line.setAttribute('x1', p1.x);
+      line.setAttribute('y1', p1.y);
+      line.setAttribute('x2', p2.x);
+      line.setAttribute('y2', p2.y);
+      line.setAttribute('stroke',          'rgba(128,90,200,0.35)');
       line.setAttribute('stroke-width',    '5');
       line.setAttribute('stroke-dasharray','12 9');
       line.setAttribute('stroke-linecap',  'round');
