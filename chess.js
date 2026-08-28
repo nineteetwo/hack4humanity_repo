@@ -79,7 +79,7 @@ class ChessBoard {
     fileRow.className = 'chess-file-labels';
     fileRow.setAttribute('aria-hidden', 'true');
     const spacer = document.createElement('div');
-    spacer.style.width = '22px';
+    spacer.className = 'chess-corner-spacer';
     fileRow.appendChild(spacer);
     ['a','b','c','d','e','f','g','h'].forEach(f => {
       const lbl = document.createElement('div');
