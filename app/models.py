@@ -36,6 +36,30 @@ class User(Base):
     progress = relationship("LessonProgress", back_populates="user", cascade="all, delete-orphan")
     quest_submissions = relationship("QuestSubmission", back_populates="user", cascade="all, delete-orphan")
 
+    # Following relationships
+    following = relationship(
+        "Friend",
+        foreign_keys="[Friend.user_id]",
+        back_populates="user",
+        cascade="all, delete-orphan"
+    )
+
+class Friend(Base):
+    """
+    Many-to-many friendship (one-way follow for simplicity).
+    user_id follows friend_id.
+    """
+    __tablename__ = "friends"
+    __table_args__ = (UniqueConstraint("user_id", "friend_id", name="uq_user_friend"),)
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    friend_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    user = relationship("User", foreign_keys=[user_id], back_populates="following")
+    friend_user = relationship("User", foreign_keys=[friend_id])
+
 
 class LessonProgress(Base):
     """Hansı user hansı lesson-u nə vaxt bitirib. Bir user eyni lesson-u
@@ -98,3 +122,17 @@ class ChessGame(Base):
     winner = Column(String, nullable=True)  # "white" | "black" | "draw" | null
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+class Quest(Base):
+    """
+    Sistemdeki mevcut görevlerin (quests) havuzu.
+    """
+    __tablename__ = "quests"
+
+    id = Column(Integer, primary_key=True, index=True)
+    task_type = Column(String, nullable=False) # 'breathe', 'journal', 'mood', vs.
+    icon = Column(String, nullable=False)
+    label = Column(String, nullable=False)
+    reward_xp = Column(Integer, default=10)
+    reward_gems = Column(Integer, default=5)
+    target = Column(Integer, default=1)

@@ -31,10 +31,35 @@ class QuestSolver {
   static async init() {
     const params   = new URLSearchParams(window.location.search);
     const lessonId = params.get('lesson');
-    const lesson   = LESSON_DATA.find(l => l.id === lessonId);
+    const dailyQuestId = params.get('dailyQuest');
+    
+    let lesson;
+    let isDaily = false;
+    
+    if (dailyQuestId) {
+        // Fetch daily quests and find this one
+        if (typeof API !== 'undefined' && API.isLoggedIn()) {
+            const dailyQuests = await API.quests.getDaily();
+            const dq = dailyQuests.find(q => q.id == dailyQuestId);
+            if (dq) {
+                lesson = {
+                    id: `daily_${dq.id}`,
+                    title: dq.label,
+                    taskType: dq.task_type || 'breathe',
+                    emoji: dq.icon,
+                    desc: `Complete this daily quest to earn ${dq.reward_gems} gems!`,
+                    xp: dq.reward_xp,
+                    dailyQuestId: dq.id
+                };
+                isDaily = true;
+            }
+        }
+    } else {
+        lesson = LESSON_DATA.find(l => l.id === lessonId);
+    }
 
     if (!lesson) {
-      window.location.href = 'app.html';
+      window.location.href = 'learn.html';
       return;
     }
 
@@ -48,22 +73,25 @@ class QuestSolver {
     if (xpEl) xpEl.textContent = `+${lesson.xp} pts`;
 
     const solver = new QuestSolver(lesson);
+    solver.isDaily = isDaily;
     solver.render(document.getElementById('quest-content'));
 
-    /* Already completed? Bunu birbaşa API-dan soruşuruq (localStorage
-       cache-i app.js-in ayrı DOMContentLoaded listener-i asenkron
-       doldurur — bu, "əvvəlcə köhnə/boş cache-ə baxıb sonra sync olunur"
-       kimi bir yarış vəziyyəti (race condition) yaradırdı ki, bu da
-       artıq tamamlanmış tapşırığı "tamamlanmamış" kimi göstərə bilərdi). */
-    let alreadyComplete = LessonTracker.isComplete(lessonId);
-    if (typeof API !== 'undefined' && API.isLoggedIn()) {
-      try {
-        const completed = await API.lessons.getCompleted();
-        alreadyComplete = completed.includes(lessonId);
-      } catch (e) {
-        console.warn('[QuestSolver] completed-lessons check failed, using cache:', e.message);
-      }
+    /* Already completed? */
+    let alreadyComplete = false;
+    if (!isDaily) {
+        alreadyComplete = LessonTracker.isComplete(lessonId);
+        if (typeof API !== 'undefined' && API.isLoggedIn()) {
+          try {
+            const completed = await API.lessons.getCompleted();
+            alreadyComplete = completed.includes(lessonId);
+          } catch (e) {
+            console.warn('[QuestSolver] completed-lessons check failed:', e.message);
+          }
+        }
+    } else {
+        // Daily quests could be completed, we might need a check, but for now allow doing it
     }
+    
     if (alreadyComplete) {
       solver._showAlreadyComplete();
     }
@@ -235,8 +263,8 @@ class QuestSolver {
 
     textarea.addEventListener('input', () => {
       const len = textarea.value.trim().length;
-      charCount.textContent = `${len} character${len !== 1 ? 's' : ''}`;
-      submitBtn.disabled = len < 20;
+      charCount.textContent = `${len} character${len !== 1 ? 's' : ''} (min 5)`;
+      submitBtn.disabled = len < 5;
     });
 
     submitBtn.addEventListener('click', () => {
@@ -399,7 +427,21 @@ class QuestSolver {
     /* Backend'e submission gönder + stats güncelle */
     if (typeof API !== 'undefined' && API.isLoggedIn()) {
       try {
-        const result = await API.quests.submit(this.lesson.id, this._submission);
+        let result;
+        if (this.isDaily) {
+            result = await API.quests.submitDaily(this.lesson.dailyQuestId, this._submission);
+            // Simulate standard structure for local usage
+            result.user = {
+                streak: StatsPanel.state.streak, // Doesn't change on daily
+                hp: StatsPanel.state.hp,
+                xp: result.user_xp,
+                gems: result.user_gems
+            };
+            result.xp_awarded = result.xp_awarded;
+        } else {
+            result = await API.quests.submit(this.lesson.id, this._submission);
+            LessonTracker.markComplete(this.lesson.id);
+        }
 
         /* Cache'i backend'deki gerçek değerlerle güncelle */
         if (result.user) {
@@ -411,9 +453,8 @@ class QuestSolver {
           });
           StatsPanel.update();
         }
-        LessonTracker.markComplete(this.lesson.id);
 
-        this._showCompletionOverlay(result.xp_awarded);
+        this._showCompletionOverlay(result.xp_awarded || this.lesson.xp);
 
       } catch (err) {
         console.error('[QuestSolver] submit failed:', err.message);
@@ -458,7 +499,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   /* Overlay back button */
   document.getElementById('overlay-back-btn')?.addEventListener('click', () => {
-    window.location.href = 'app.html';
+    window.location.href = 'learn.html';
   });
 
   QuestSolver.init();

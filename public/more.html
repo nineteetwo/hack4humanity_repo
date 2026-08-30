@@ -72,7 +72,49 @@
     <!-- MAIN CONTENT FEED -->
     <main class="main-feed" id="main-feed" role="main">
       <div class="content-panel" id="panel-more">
-        <div class="placeholder-panel"><div class="placeholder-panel__emoji">⚙️</div><h2>Settings</h2><p>Notification preferences, accessibility options, and more — coming soon!</p></div>
+        <div class="lb-full-panel" style="padding: 24px;">
+          <h2 class="lb-full-panel__title" style="margin-bottom: 24px;">⚙️ Settings</h2>
+
+          <!-- Account Settings -->
+          <div style="background: var(--bg-secondary); padding: 16px; border-radius: 12px; margin-bottom: 24px; border: 1px solid var(--border);">
+            <h3 style="font-family: 'Fredoka One', cursive; margin-bottom: 12px; color: var(--text-primary);">Account Details</h3>
+            <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 16px;">Your email and name.</p>
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+              <input type="text" id="settings-name" class="clay-input" placeholder="Your Name" style="padding: 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-main); color: var(--text-primary);" readonly />
+              <input type="email" id="settings-email" class="clay-input" placeholder="Your Email" style="padding: 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-main); color: var(--text-primary);" readonly />
+            </div>
+          </div>
+
+          <!-- Preferences -->
+          <div style="background: var(--bg-secondary); padding: 16px; border-radius: 12px; margin-bottom: 24px; border: 1px solid var(--border);">
+            <h3 style="font-family: 'Fredoka One', cursive; margin-bottom: 12px; color: var(--text-primary);">Preferences</h3>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span style="color: var(--text-secondary);">Dark Mode / Light Mode</span>
+              <button class="theme-toggle theme-toggle--sm" onclick="ThemeManager.toggle()" aria-label="Toggle theme" style="background: var(--bg-main); padding: 8px 16px; border-radius: 8px;">
+                <span class="theme-toggle__icon">🌙</span> Toggle
+              </button>
+            </div>
+          </div>
+
+          <!-- Danger Zone -->
+          <div style="background: rgba(239, 68, 68, 0.1); padding: 16px; border-radius: 12px; border: 1px solid rgba(239, 68, 68, 0.2);">
+            <h3 style="font-family: 'Fredoka One', cursive; margin-bottom: 12px; color: #ef4444;">Danger Zone</h3>
+            <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 16px;">Permanently deletes your account and all data.</p>
+            <button class="clay-btn clay-btn--sm" style="background: #ef4444; color: white; width: 100%; border: none;">Delete My Account</button>
+          </div>
+          
+          <script>
+            document.addEventListener('DOMContentLoaded', () => {
+              // Populate settings after auth loads
+              setTimeout(() => {
+                if(StatsPanel && StatsPanel.state) {
+                  document.getElementById('settings-name').value = StatsPanel.state.name || '';
+                  document.getElementById('settings-email').value = StatsPanel.state.email || 'user@example.com';
+                }
+              }, 1000);
+            });
+          </script>
+        </div>
       </div>
     </main>
 

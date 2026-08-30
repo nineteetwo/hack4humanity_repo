@@ -1,41 +1,94 @@
-# hack4humanity_repo — Dolphy
+# Dolphy Local Setup Guide (PostgreSQL & Python)
 
-Daily mental wellness app: FastAPI backend + a plain HTML/CSS/JS frontend,
-served by the **same** server.
+Bu rehber, projeyi kendi bilgisayarında yerel (local) olarak çalıştırmak isteyenler için hazırlanmıştır. Proje arka planda **Python (FastAPI)** ve veritabanı olarak **PostgreSQL** kullanmaktadır.
 
-## Project layout
+## Ön Gereksinimler
+Sisteminize aşağıdaki araçların yüklü olduğundan emin olun:
+- **Python** (3.9 veya daha yeni bir sürüm)
+- **Docker Desktop** (Veritabanını kolayca ayağa kaldırmak için)
+- **Git** (Projeyi klonlamak için)
 
+---
+
+## 1. PostgreSQL Veritabanını Docker ile Ayağa Kaldırmak
+
+Veritabanını bilgisayarınıza kurmak yerine Docker ile tek bir komutta çalıştırabilirsiniz. Terminali (veya Komut İstemini) açın ve şu komutu yapıştırın:
+
+```bash
+docker run --name dolphy_db \
+  -e POSTGRES_USER=dolphy \
+  -e POSTGRES_PASSWORD=dolphy \
+  -e POSTGRES_DB=dolphy \
+  -p 5432:5432 \
+  -d postgres:15
 ```
-app/           FastAPI backend (routers, models, auth, chess engine, ...)
-public/        Frontend — index.html, app.html, login.html, signup.html,
-               profil.html, quest.html, styles.css, and all the *.js files.
-               Served directly by FastAPI's StaticFiles at "/".
-requirements.txt
+
+Bu komut:
+- `dolphy_db` adında bir arka plan hizmeti başlatır.
+- Kullanıcı adı, şifre ve veritabanı adını `dolphy` olarak ayarlar.
+- Bilgisayarınızın `5432` portunu veritabanına bağlar.
+
+> [!TIP]
+> Docker konteyneri durursa tekrar başlatmak için `docker start dolphy_db` komutunu kullanabilirsiniz. Sıfırlamak isterseniz `docker rm -f dolphy_db` yapıp üstteki komutu tekrar çalıştırın.
+
+---
+
+## 2. Python Kütüphanelerini Kurmak
+
+Projeyi indirdiğiniz klasöre (örneğin `hack4humanity_repo-main`) terminal üzerinden gidin ve sırasıyla şu adımları izleyin:
+
+**A. Sanal Ortam (Virtual Environment) Oluşturun**
+Bağımlılıkların sisteminize karışmaması için proje klasöründe bir sanal ortam oluşturun:
+```bash
+# Windows için:
+python -m venv venv
+
+# Mac/Linux için:
+python3 -m venv venv
 ```
 
-## Running locally
+**B. Sanal Ortamı Aktif Edin**
+```bash
+# Windows (Command Prompt):
+venv\Scripts\activate.bat
 
-1. Create a Postgres database matching `DATABASE_URL` (see `app/config.py`
-   for the default, or set your own in a `.env` file — see below).
-2. Install dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
-3. (Optional) create a `.env` file to override defaults, e.g.:
-   ```
-   DATABASE_URL=postgresql://user:pass@localhost:5432/dolphy
-   JWT_SECRET=change-me
-   ```
-4. Start the server:
-   ```bash
-   uvicorn app.main:app --reload
-   ```
-5. Open **http://localhost:8000/** — this now serves `public/index.html`
-   directly (the root URL is no longer a bare JSON health check). The API
-   itself lives under `/auth`, `/users`, `/lessons`, `/quests`,
-   `/leaderboard`, `/chess`, and a lightweight health check is available at
-   `/api/health`.
+# Windows (PowerShell):
+venv\Scripts\Activate.ps1
 
-Because the frontend and API are served from the same origin/port, no CORS
-configuration is required for local development — `api.js`'s `BASE_URL`
-already points at `http://localhost:8000`.
+# Mac/Linux:
+source venv/bin/activate
+```
+*(Aktif ettiğinizde komut satırının başında `(venv)` ibaresini göreceksiniz).*
+
+**C. Gerekli Kütüphaneleri Yükleyin**
+Projenin ihtiyaç duyduğu tüm Python paketlerini kurun:
+```bash
+pip install -r requirements.txt
+```
+
+---
+
+## 3. Ayar Dosyasını (Environment Variables) Hazırlamak
+
+Proje kök dizininde (içinde `app` klasörü olan yer) yeni bir dosya oluşturun ve adını **`.env`** koyun. İçerisine şu satırı ekleyin:
+
+```env
+DATABASE_URL=postgresql://dolphy:dolphy@localhost:5432/dolphy
+```
+
+Bu ayar, Python sunucusunun az önce Docker ile başlattığımız veritabanına bağlanmasını sağlar.
+
+---
+
+## 4. Projeyi Çalıştırmak
+
+Her şey hazır! Şimdi FastAPI sunucusunu ayağa kaldırıyoruz. Terminalde (sanal ortam aktifken) şu komutu çalıştırın:
+
+```bash
+uvicorn app.main:app --reload
+```
+
+> [!NOTE]
+> Sunucu başladığında `http://127.0.0.1:8000` adresinde yerel olarak çalışacaktır. Eğer tarayıcınız otomatik açılmazsa, kendiniz adres çubuğuna bu linki yapıştırarak siteye giriş yapabilirsiniz.
+
+**Tebrikler!** Sistem başarıyla çalışıyor olmalı. Herhangi bir kod değişikliği yaptığınızda `--reload` sayesinde sunucu kendini otomatik olarak güncelleyecektir.

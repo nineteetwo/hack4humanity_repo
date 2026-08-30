@@ -317,7 +317,7 @@ class App {
     if (document.referrer) {
       window.history.back();
     } else {
-      window.location.href = 'app.html';
+      window.location.href = 'learn.html';
     }
   }
 }

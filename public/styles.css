@@ -1535,3 +1535,11 @@ body { animation: page-fade-in 0.22s ease; }
   --bg-secondary: var(--bg-mid);
   --border:       var(--border-dark);
 }
+
+.clay-btn:disabled, .clay-btn[disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+  filter: grayscale(80%);
+  transform: none !important;
+  box-shadow: none !important;
+}

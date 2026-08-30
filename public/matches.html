@@ -72,7 +72,20 @@
     <!-- MAIN CONTENT FEED -->
     <main class="main-feed" id="main-feed" role="main">
       <div class="content-panel" id="panel-matches">
-        <div class="placeholder-panel"><div class="placeholder-panel__emoji">🤝</div><h2>Buddy System</h2><p>Connect with a wellness buddy and support each other — coming soon!</p></div>
+        <div class="lb-full-panel" style="padding: 24px;">
+          <h2 class="lb-full-panel__title" style="margin-bottom: 8px;">🤝 Buddy System</h2>
+          <p class="lb-full-panel__sub" style="margin-bottom: 24px;">Add your friends and compete with them!</p>
+
+          <div style="display: flex; gap: 8px; margin-bottom: 24px;">
+            <input type="text" id="friend-search-input" placeholder="Search by name or email..." style="flex: 1; padding: 12px 16px; border-radius: 14px; border: 1px solid var(--border); background: var(--bg-secondary); color: var(--text-primary); font-family: 'Nunito', sans-serif;" />
+            <button id="btn-friend-search" class="clay-btn clay-btn--primary">Search</button>
+          </div>
+          
+          <div id="friend-search-results" style="margin-bottom: 32px; display: flex; flex-direction: column; gap: 10px;"></div>
+
+          <h3 style="margin-bottom: 16px; color: var(--text-primary); font-family: 'Fredoka One', cursive;">🏆 Friends Leaderboard</h3>
+          <div id="friends-list"><div class="lb-loading">⏳ Loading...</div></div>
+        </div>
       </div>
     </main>
 
@@ -156,8 +169,119 @@
     <div class="mobile-drawer__body" id="stats-drawer-body"></div>
   </div>
 
+  <!-- Lesson/Task Preview Modal -->
+  <div class="modal-overlay" id="lesson-modal" role="dialog" aria-modal="true" aria-label="Task details">
+    <div class="lesson-modal-card" id="lesson-modal-card"></div>
+  </div>
+
   <script src="api.js?v=2"></script>
   <script src="app.js?v=2"></script>
   <script src="learn.js?v=2"></script>
+  <script>
+    "use strict";
+    
+    async function loadFriends() {
+      const container = document.getElementById('friends-list');
+      if (!container) return;
+      container.innerHTML = '<div class="lb-loading">⏳ Yükleniyor...</div>';
+      try {
+        const friends = await API.users.getFriends();
+        container.innerHTML = '';
+        if (!friends || !friends.length) {
+          container.innerHTML = '<p style="color:var(--text-muted);text-align:center;padding:24px">🚀 Henüz arkadaşın yok. Hemen birini ara!</p>';
+          return;
+        }
+        
+        const AVATARS = ['🌸','🦋','🌿','💧','🌺','🌟','💫','✨','🌈','🐬','🎕','🐢','🦦','🍎','🌊','🚲','🎂','🦁','🧊','🐊'];
+        const wrap = document.createElement('div');
+        wrap.style.cssText = 'display:flex;flex-direction:column;gap:10px;';
+        
+        friends.forEach((e, i) => {
+          const avatar = AVATARS[i % AVATARS.length];
+          const div = document.createElement('div');
+          div.className = 'leaderboard-entry';
+          const rank = i + 1;
+          const RANK_CLASSES = { 1:'lb-rank--gold', 2:'lb-rank--silver', 3:'lb-rank--bronze' };
+          div.innerHTML = `
+            <span class="lb-rank ${RANK_CLASSES[rank] || ''}">${rank}</span>
+            <div class="lb-avatar" aria-hidden="true">${avatar}</div>
+            <span class="lb-name">${e.name || 'İsimsiz'}</span>
+            <div style="margin-left:auto;text-align:right">
+              <span class="lb-xp">${(e.xp||0).toLocaleString()} pts</span>
+              <div style="font-size:11px;color:var(--text-muted)">🪴 ${e.streak||0} gün seri</div>
+            </div>
+          `;
+          wrap.appendChild(div);
+        });
+        container.appendChild(wrap);
+      } catch(err) {
+        console.error("Arkadaş listesi çekilemedi:", err);
+        container.innerHTML = '<p style="color:var(--text-muted);text-align:center;padding:24px">❌ Arkadaş listesi yüklenemedi.</p>';
+      }
+    }
+
+    async function searchFriends() {
+      const q = document.getElementById('friend-search-input').value.trim();
+      const container = document.getElementById('friend-search-results');
+      if (!q) {
+        container.innerHTML = '';
+        return;
+      }
+      container.innerHTML = '<div style="color:var(--text-muted); padding: 12px; text-align: center;">Aranıyor...</div>';
+      try {
+        const results = await API.users.search(q);
+        container.innerHTML = '';
+        if (!results || !results.length) {
+          container.innerHTML = '<div style="color:var(--text-muted); padding: 12px; text-align: center;">Kullanıcı bulunamadı.</div>';
+          return;
+        }
+        results.forEach(u => {
+          const div = document.createElement('div');
+          div.style.cssText = 'display:flex; justify-content:space-between; align-items:center; padding:12px 16px; background:var(--bg-secondary); border-radius:12px; border: 1px solid var(--border);';
+          div.innerHTML = `
+            <div>
+              <div style="font-weight:bold; color:var(--text-primary); font-family: 'Fredoka One', cursive; margin-bottom: 4px;">${u.name || 'İsimsiz'}</div>
+              <div style="font-size:12px; color:var(--text-muted);">${u.xp || 0} XP • ${u.streak || 0} gün seri</div>
+            </div>
+            <button class="clay-btn clay-btn--sm ${u.is_friend ? 'clay-btn--secondary' : 'clay-btn--primary'}" 
+                    ${u.is_friend ? 'disabled' : ''} 
+                    onclick="addFriend(this, ${u.id})">
+              ${u.is_friend ? 'Eklendi' : 'Ekle'}
+            </button>
+          `;
+          container.appendChild(div);
+        });
+      } catch (err) {
+        console.error("Arama hatası:", err);
+        container.innerHTML = '<div style="color:var(--text-muted); padding: 12px; text-align: center;">Arama sırasında hata oluştu.</div>';
+      }
+    }
+
+    async function addFriend(btn, friendId) {
+      const originalText = btn.textContent;
+      btn.textContent = '...';
+      btn.disabled = true;
+      try {
+        await API.users.addFriend(friendId);
+        btn.textContent = 'Eklendi';
+        btn.className = 'clay-btn clay-btn--sm clay-btn--secondary';
+        loadFriends(); // Refresh leaderboard
+      } catch (err) {
+        btn.textContent = 'Hata';
+        setTimeout(() => {
+          btn.textContent = originalText;
+          btn.disabled = false;
+        }, 2000);
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('btn-friend-search')?.addEventListener('click', searchFriends);
+      document.getElementById('friend-search-input')?.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') searchFriends();
+      });
+      loadFriends();
+    });
+  </script>
 </body>
 </html>

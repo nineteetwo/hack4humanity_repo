@@ -23,6 +23,7 @@ class PanelManager {
     'matches':      'panel-matches',
     'leaderboards': 'panel-leaderboards',
     'quests':       'panel-quests',
+    'profile':      'panel-profile',
     'more':         'panel-more',
   };
 
@@ -448,11 +449,12 @@ class PathManager {
    QUEST CARD — Individual daily quest display
    ============================================================ */
 class QuestCard {
-  constructor({ id, icon, label, reward, current, total }) {
+  constructor({ id, icon, label, reward, xp, current, total }) {
     this.id      = id;
     this.icon    = icon;
     this.label   = label;
     this.reward  = reward;
+    this.xp      = xp;
     this.current = current;
     this.total   = total;
     this.el      = this._render();
@@ -462,7 +464,31 @@ class QuestCard {
     const card = document.createElement('div');
     card.className       = 'quest-card';
     card.dataset.questId = this.id;
+    card.style.cursor    = 'pointer'; // Make it look clickable
     this._update(card);
+    
+    card.addEventListener('click', () => {
+      // Don't open modal if already completed
+      if (this.current >= this.total) return;
+      
+      const isDaily = this.id.startsWith('q-daily-');
+      const realId = this.id.replace('q-daily-', '').replace('q-', '');
+      
+      // Fake a lesson object for the modal
+      const fakeLesson = {
+        id: this.id, // e.g. q-daily-5
+        title: this.label,
+        taskType: this.task_type || 'breathe',
+        emoji: this.icon,
+        desc: `Complete this daily quest to earn ${this.reward}`,
+        xp: this.xp || 10,
+        isDailyQuest: true,
+        questDbId: realId
+      };
+      
+      LessonModal.open(fakeLesson);
+    });
+    
     return card;
   }
 
@@ -495,44 +521,59 @@ class QuestCard {
 }
 
 /* ============================================================
-   QUEST MANAGER — Dynamic from completed lessons (API)
+   QUEST MANAGER — Dynamic from backend
    ============================================================ */
 class QuestManager {
   static quests = [];
 
-  /* İleride backend'den çekilebilir; şimdilik sabit hedefler,
-     ilerlemeler gerçek tamamlanan lesson verisinden hesaplanır. */
-  static QUEST_DEFINITIONS = [
-    { id: 'q-breathe', icon: '🌅', label: 'Breathing görevi tamamla', reward: '+10 💎', taskType: 'breathe', total: 3 },
-    { id: 'q-journal', icon: '📝', label: '3 gün günlük yaz', reward: '+20 💎', taskType: 'journal', total: 3 },
-    { id: 'q-connect', icon: '💬', label: 'Biriyle bağlantı kur', reward: '+15 💎', taskType: 'confirm', total: 1 },
-    { id: 'q-streak',  icon: '🌿', label: 'Serisini koru (5 gün)', reward: '+5 💎',  taskType: '_streak', total: 5 },
-  ];
-
   static async init(containerIds) {
     let submissions = [];
     let userStreak = 0;
+    let dailyQuests = [];
     try {
       if (API.isLoggedIn()) {
         submissions = await API.quests.mySubmissions();
         const me = StatsPanel.state;
         userStreak = me.streak || 0;
+        dailyQuests = await API.quests.getDaily();
       }
     } catch (e) {
       console.warn('[QuestManager] Submission sync failed:', e.message);
     }
 
-    /* Tamamlanan task type sayılarını hesapla */
+    /* If backend fails or not logged in, show placeholders */
+    if (!dailyQuests || dailyQuests.length === 0) {
+      dailyQuests = [
+        { id: 'q-breathe', icon: '🌅', label: 'Nefes egzersizi yap', reward_gems: 10, task_type: 'breathe', target: 3 },
+        { id: 'q-journal', icon: '📝', label: '3 gün günlük yaz', reward_gems: 20, task_type: 'journal', target: 3 },
+        { id: 'q-streak',  icon: '🌿', label: 'Serisini koru (5 gün)', reward_gems: 5,  task_type: '_streak', target: 5 },
+      ];
+    }
+
+    /* Calculate completed task type amounts */
     const counts = {};
     submissions.forEach(s => {
       counts[s.task_type] = (counts[s.task_type] || 0) + 1;
     });
 
-    QuestManager.quests = QuestManager.QUEST_DEFINITIONS.map(def => {
-      const current = def.taskType === '_streak'
-        ? Math.min(userStreak, def.total)
-        : Math.min(counts[def.taskType] || 0, def.total);
-      return new QuestCard({ ...def, current });
+    QuestManager.quests = dailyQuests.map(def => {
+      const current = def.task_type === '_streak'
+        ? Math.min(userStreak, def.target)
+        : Math.min(counts[def.task_type] || 0, def.target);
+      return new QuestCard({
+        id: `q-daily-${def.id || def.task_type}`,
+        icon: def.icon,
+        label: def.label,
+        reward: `+${def.reward_gems} 💎`,
+        xp: def.reward_xp,
+        current: current,
+        total: def.target
+      });
+    });
+    
+    // Attach task_type to the card instances for the click handler
+    QuestManager.quests.forEach((q, idx) => {
+        q.task_type = dailyQuests[idx].task_type;
     });
 
     containerIds.forEach(id => {
@@ -581,7 +622,7 @@ class LeaderboardPanel {
 
   static async init(container) {
     if (!container) return;
-    container.innerHTML = '<div class="lb-loading">⏳ Yükleniyor...</div>';
+    container.innerHTML = '<div class="lb-loading">⏳ Loading...</div>';
     try {
       const entries = await API.leaderboard.top(5);
       const myName  = StatsPanel.state.name || '';
@@ -597,7 +638,7 @@ class LeaderboardPanel {
       });
       container.appendChild(wrap);
     } catch (err) {
-      container.innerHTML = '<p style="color:var(--text-muted);font-size:12px;padding:8px">Puan tablosu yüklenemedi.</p>';
+      container.innerHTML = '<p style="color:var(--text-muted);font-size:12px;padding:8px">Leaderboard failed to load.</p>';
     }
   }
 }
@@ -636,7 +677,13 @@ class LessonModal {
   static startTask() {
     const lesson = LessonModal.currentLesson;
     LessonModal.close();
-    if (lesson) App.goToQuest(lesson.id);
+    if (lesson) {
+      if (lesson.isDailyQuest) {
+        window.location.href = `quest.html?dailyQuest=${encodeURIComponent(lesson.questDbId)}`;
+      } else {
+        App.goToQuest(lesson.id);
+      }
+    }
   }
 
   static close() {
@@ -684,6 +731,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (activePanel) {
     const pageId = activePanel.id.replace('panel-', '');
     PanelManager.show(pageId);
+    if (pageId === 'leaderboards') {
+      _loadFullLeaderboard();
+    }
   }
 
   /* Node path — önce cache'den (hızlı ilk boyama), sonra backend'den
@@ -706,7 +756,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   _buildMobileDrawerContent();
 
   /* Quests (async — API'dan dinamik; drawer zaten oluştuktan sonra çağrılıyor) */
-  QuestManager.init(['daily-quests-list', 'mobile-drawer-quests']);
+  QuestManager.init(['daily-quests-list', 'mobile-drawer-quests', 'quests-page-list']);
 
   /* Sağ sidebar leaderboard preview (API'dan) */
   LeaderboardPanel.init(document.getElementById('leaderboard-preview'));
@@ -762,14 +812,14 @@ function _buildMobileDrawerContent() {
 async function _loadFullLeaderboard() {
   const container = document.getElementById('lb-full-list');
   if (!container) return;
-  container.innerHTML = '<div class="lb-loading">⏳ Yükleniyor...</div>';
+  container.innerHTML = '<div class="lb-loading">⏳ Loading...</div>';
   try {
     const entries = await API.leaderboard.top(20);
     const myName  = StatsPanel.state.name || '';
     const AVATARS = ['🌸','🦋','🌿','💧','🌺','🌟','💫','✨','🌈','🐬','🎕','🐢','🦦','🍎','🌊','🚲','🎂','🦁','🧊','🐊'];
     container.innerHTML = '';
     if (!entries.length) {
-      container.innerHTML = '<p style="color:var(--text-muted);text-align:center;padding:24px">🚀 Henüz kayıtlı kullanıcı yok!</p>';
+      container.innerHTML = '<p style="color:var(--text-muted);text-align:center;padding:24px">🚀 No users registered yet!</p>';
       return;
     }
     const wrap = document.createElement('div');
@@ -783,17 +833,17 @@ async function _loadFullLeaderboard() {
       div.innerHTML = `
         <span class="lb-rank ${RANK_CLASSES[e.rank] || ''}">${e.rank}</span>
         <div class="lb-avatar" aria-hidden="true">${avatar}</div>
-        <span class="lb-name">${e.name}${isMe ? ' (Sen)' : ''}</span>
+        <span class="lb-name">${e.name}${isMe ? ' (You)' : ''}</span>
         <div style="margin-left:auto;text-align:right">
           <span class="lb-xp">${e.xp.toLocaleString()} pts</span>
-          <div style="font-size:11px;color:var(--text-muted)">🪴 ${e.streak} gün seri</div>
+          <div style="font-size:11px;color:var(--text-muted)">🪴 ${e.streak} day streak</div>
         </div>
       `;
       wrap.appendChild(div);
     });
     container.appendChild(wrap);
   } catch (err) {
-    container.innerHTML = '<p style="color:var(--text-muted);text-align:center;padding:24px">❌ Puan tablosu yüklenemedi.</p>';
+    container.innerHTML = '<p style="color:var(--text-muted);text-align:center;padding:24px">❌ Leaderboard failed to load.</p>';
   }
 }
 

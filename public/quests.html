@@ -72,7 +72,13 @@
     <!-- MAIN CONTENT FEED -->
     <main class="main-feed" id="main-feed" role="main">
       <div class="content-panel" id="panel-quests">
-        <div class="placeholder-panel"><div class="placeholder-panel__emoji">🗺️</div><h2>Weekly Quests</h2><p>Special weekly wellness challenges appear here. Keep up your streak!</p></div>
+        <div class="lb-full-panel" style="padding: 24px;">
+          <h2 class="lb-full-panel__title" style="margin-bottom: 8px;">🗺️ Daily Quests</h2>
+          <p class="lb-full-panel__sub" style="margin-bottom: 24px;">These quests are refreshed daily for you. Complete them and collect rewards!</p>
+          <div id="quests-page-list">
+            <div class="lb-loading">⏳ Loading Quests...</div>
+          </div>
+        </div>
       </div>
     </main>
 
@@ -160,6 +166,8 @@
   <div class="modal-overlay" id="lesson-modal" role="dialog" aria-modal="true" aria-label="Task details">
     <div class="lesson-modal-card" id="lesson-modal-card"></div>
   </div>
+
+
 
   <script src="api.js?v=2"></script>
   <script src="app.js?v=2"></script>

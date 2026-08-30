@@ -24,6 +24,43 @@ async def lifespan(app: FastAPI):
         time.sleep(1.5) # Wait for uvicorn to fully start
         webbrowser.open("http://127.0.0.1:8000")
     
+    def init_db():
+        from app.database import SessionLocal
+        from app import models
+        db = SessionLocal()
+        
+        # Force update all existing quests to English
+        default_quests = [
+            ("breathe", "🌅", "Do a breathing exercise (3 times)", 20, 10, 3),
+            ("journal", "📝", "Write journal for 3 days", 50, 20, 3),
+            ("mood", "🎭", "Log your mood", 10, 5, 1),
+            ("breathe", "🧘", "Take a short breathing break", 10, 5, 1),
+            ("journal", "📓", "How was your day? Write it down.", 15, 5, 1),
+            ("_streak", "🔥", "Keep your streak (5 days)", 100, 50, 5),
+            ("_streak", "🌿", "Keep your streak (3 days)", 40, 20, 3),
+            ("confirm", "🤝", "Ask a friend how they are doing", 15, 5, 1),
+            ("confirm", "🚶", "Go for a 15-minute walk", 20, 10, 1),
+            ("breathe", "😮‍💨", "Take a deep breath (5 times)", 30, 15, 5),
+        ]
+        
+        existing_quests = db.query(models.Quest).all()
+        if existing_quests and len(existing_quests) == len(default_quests):
+            for i, q in enumerate(existing_quests):
+                q.label = default_quests[i][2]
+                q.icon = default_quests[i][1]
+            db.commit()
+            
+        count = db.query(models.Quest).count()
+        if count == 0:
+            new_quests = [
+                models.Quest(task_type=q[0], icon=q[1], label=q[2], reward_xp=q[3], reward_gems=q[4], target=q[5])
+                for q in default_quests
+            ]
+            db.add_all(new_quests)
+            db.commit()
+        db.close()
+        
+    threading.Thread(target=init_db).start()
     threading.Thread(target=open_browser, daemon=True).start()
     yield
 

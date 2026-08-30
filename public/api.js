@@ -116,6 +116,22 @@ const API = (() => {
     async me() {
       return request("GET", "/users/me");
     },
+    
+    async search(query) {
+      return request("GET", `/users/search?q=${encodeURIComponent(query)}`);
+    },
+    
+    async getFriends() {
+      return request("GET", "/users/friends");
+    },
+    
+    async addFriend(friendId) {
+      return request("POST", `/users/friends/${friendId}`);
+    },
+    
+    async removeFriend(friendId) {
+      return request("DELETE", `/users/friends/${friendId}`);
+    }
   };
 
   /* ── LESSONS ─────────────────────────────────────────────────── */
@@ -167,6 +183,20 @@ const API = (() => {
     async mySubmissions() {
       return request("GET", "/quests/my-submissions");
     },
+
+    /**
+     * Günlük rastgele 3 görevi getir.
+     */
+    async getDaily() {
+      return request("GET", "/quests/daily");
+    },
+
+    /**
+     * Günlük görevi tamamla.
+     */
+    async submitDaily(questId, payload) {
+      return request("POST", `/quests/daily/${encodeURIComponent(questId)}/submit`, payload);
+    }
   };
 
   /* ── LEADERBOARD ─────────────────────────────────────────────── */

@@ -113,3 +113,101 @@ def my_submissions(
         .all()
     )
     return rows
+
+import random
+
+@router.get("/daily")
+def get_daily_quests(
+    current_user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """
+    Returns 3 random quests for the current day for the current user.
+    """
+    all_quests = db.query(models.Quest).all()
+    if not all_quests:
+        return []
+        
+    # Seed based on user_id and current date so it stays same all day
+    today = date.today().toordinal()
+    seed = today + current_user.id
+    
+    rng = random.Random(seed)
+    num_to_pick = min(3, len(all_quests))
+    selected = rng.sample(all_quests, num_to_pick)
+    
+    # Randomize XP between 10 and 60
+    # To not modify the actual db model, we create dicts
+    result = []
+    for q in selected:
+        q_dict = {
+            "id": q.id,
+            "task_type": q.task_type,
+            "icon": q.icon,
+            "label": q.label,
+            "reward_xp": rng.randint(10, 60),
+            "reward_gems": q.reward_gems,
+            "target": q.target
+        }
+        result.append(q_dict)
+    
+    return result
+
+@router.post("/daily/{quest_id}/submit")
+def submit_daily_quest(
+    quest_id: int,
+    payload: schemas.QuestSubmitIn,
+    current_user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """
+    Submit a daily quest.
+    """
+    quest = db.query(models.Quest).filter(models.Quest.id == quest_id).first()
+    if not quest:
+        raise HTTPException(status_code=404, detail="Quest not found")
+
+    # Mood validation
+    if payload.task_type == "mood" and payload.mood_value is not None:
+        if not (1 <= payload.mood_value <= 5):
+            raise HTTPException(status_code=422, detail="mood_value must be between 1 and 5")
+
+    # Reconstruct the random XP for this quest
+    all_quests = db.query(models.Quest).all()
+    today = date.today().toordinal()
+    seed = today + current_user.id
+    rng = random.Random(seed)
+    num_to_pick = min(3, len(all_quests))
+    selected = rng.sample(all_quests, num_to_pick)
+    
+    xp_to_award = quest.reward_xp
+    for q in selected:
+        random_xp = rng.randint(10, 60)
+        if q.id == quest_id:
+            xp_to_award = random_xp
+
+    # 1) Quest submission-u qeyd et
+    submission = models.QuestSubmission(
+        user_id=current_user.id,
+        lesson_id=f"daily_{quest_id}", # Hack to reuse QuestSubmission
+        task_type=payload.task_type,
+        mood_value=payload.mood_value,
+        text_content=payload.text_content,
+    )
+    db.add(submission)
+
+    # 2) Give rewards
+    current_user.xp += xp_to_award
+    current_user.gems += quest.reward_gems
+
+    db.commit()
+    db.refresh(submission)
+    db.refresh(current_user)
+
+    return {
+        "status": "success",
+        "xp_awarded": xp_to_award,
+        "gems_awarded": quest.reward_gems,
+        "user_xp": current_user.xp,
+        "user_gems": current_user.gems
+    }
