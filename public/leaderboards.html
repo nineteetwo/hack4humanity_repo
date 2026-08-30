@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Daily Wellness Path — Dolphy</title>
+  <meta name="description" content="Your daily mental wellness learning path on Dolphy." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- Mobile Topbar -->
+  <header class="mobile-topbar" id="mobile-topbar" role="banner">
+    <div class="mobile-topbar__logo">🐬 Dolphy</div>
+    <div class="mobile-topbar__stats" role="status" aria-label="Your stats" onclick="App.navigate('profile')" style="cursor: pointer;">
+      <div class="stat-chip" title="Day Streak"><span class="stat-chip__icon" aria-hidden="true">🪴</span><span class="stat-chip__val" id="m-streak">—</span></div>
+      <div class="stat-chip" title="Peace Tea"><span class="stat-chip__icon" aria-hidden="true">🍵</span><span class="stat-chip__val" id="m-hp">—</span></div>
+      <div class="stat-chip" title="Wellness Points"><span class="stat-chip__icon" aria-hidden="true">⚡</span><span class="stat-chip__val" id="m-xp">—</span></div>
+      <button class="theme-toggle theme-toggle--sm" id="theme-toggle-mobile" onclick="ThemeManager.toggle()" aria-label="Toggle theme">
+        <span class="theme-toggle__icon">🌙</span>
+      </button>
+    </div>
+  </header>
+
+  <div class="app-layout">
+
+    <!-- LEFT SIDEBAR -->
+    <aside class="sidebar-left" id="sidebar-left" role="navigation" aria-label="App navigation">
+      <div class="sidebar-left__logo">🐬 Dolphy</div>
+      <nav class="sidebar-nav" id="sidebar-nav" aria-label="Main menu">
+        <button class="nav-item" data-id="learn" aria-label="Learn" onclick="App.navigate('learn')">
+          <span class="nav-item__icon" aria-hidden="true">🌿</span>
+          <span class="nav-item__label">Learn</span>
+        </button>
+        <button class="nav-item" data-id="chess" aria-label="Chess" onclick="App.navigate('chess')">
+          <span class="nav-item__icon" aria-hidden="true">♟️</span>
+          <span class="nav-item__label">Chess</span>
+        </button>
+        <button class="nav-item" data-id="matches" aria-label="Matches" onclick="App.navigate('matches')">
+          <span class="nav-item__icon" aria-hidden="true">⚔️</span>
+          <span class="nav-item__label">Matches</span>
+        </button>
+        <button class="nav-item active" data-id="leaderboards" aria-label="Leaderboards" onclick="App.navigate('leaderboards')">
+          <span class="nav-item__icon" aria-hidden="true">🏆</span>
+          <span class="nav-item__label">Leaderboards</span>
+        </button>
+        <button class="nav-item" data-id="quests" aria-label="Quests" onclick="App.navigate('quests')">
+          <span class="nav-item__icon" aria-hidden="true">🗺️</span>
+          <span class="nav-item__label">Quests</span>
+        </button>
+        <button class="nav-item" data-id="profile" aria-label="Profile" onclick="App.navigate('profile')">
+          <span class="nav-item__icon" aria-hidden="true">👤</span>
+          <span class="nav-item__label">Profile</span>
+        </button>
+        <button class="nav-item" data-id="more" aria-label="More" onclick="App.navigate('more')">
+          <span class="nav-item__icon" aria-hidden="true">⚙️</span>
+          <span class="nav-item__label">More</span>
+        </button>
+      </nav>
+      <div class="sidebar-left__footer">
+        <button class="theme-toggle theme-toggle--sidebar" onclick="ThemeManager.toggle()" aria-label="Toggle theme">
+          <span class="theme-toggle__icon">🌙</span>
+          <span class="theme-toggle__label">Theme</span>
+        </button>
+        <button class="clay-btn clay-btn--ghost clay-btn--sm sidebar-logout" id="btn-exit-app" onclick="App.navigate('landing')">← Exit</button>
+      </div>
+    </aside>
+
+    <!-- MAIN CONTENT FEED -->
+    <main class="main-feed" id="main-feed" role="main">
+      <div class="content-panel" id="panel-leaderboards">
+        <div class="lb-full-panel">
+          <h2 class="lb-full-panel__title">🏆 Wellness Rankings</h2>
+          <p class="lb-full-panel__sub">Puana göre sıralanmış gerçek kullanıcılar</p>
+          <div id="lb-full-list"><div class="lb-loading">⏳ Yükleniyor...</div></div>
+        </div>
+      </div>
+    </main>
+
+    <!-- RIGHT SIDEBAR -->
+    <aside class="sidebar-right" id="sidebar-right" role="complementary" aria-label="Stats and quests">
+
+      <!-- User Stats Card -->
+      <div class="right-card" id="user-stats-card" onclick="App.navigate('profile')" style="cursor: pointer;">
+        <div class="right-card__header"><h3>My Progress</h3></div>
+        <div class="stats-grid" role="list" aria-label="User statistics">
+          <div class="stats-item stats-item--streak" role="listitem">
+            <div class="stats-item__icon" aria-hidden="true">🪴</div>
+            <div class="stats-item__info"><span class="stats-item__val" id="d-streak">—</span><span class="stats-item__label">Streak</span></div>
+          </div>
+          <div class="stats-item stats-item--hp" role="listitem">
+            <div class="stats-item__icon" aria-hidden="true">🍵</div>
+            <div class="stats-item__info"><span class="stats-item__val" id="d-hp">—</span><span class="stats-item__label">Tea</span></div>
+          </div>
+          <div class="stats-item stats-item--xp" role="listitem">
+            <div class="stats-item__icon" aria-hidden="true">⚡</div>
+            <div class="stats-item__info"><span class="stats-item__val" id="d-xp">—</span><span class="stats-item__label">XP Pts</span></div>
+          </div>
+          <div class="stats-item stats-item--gems" role="listitem">
+            <div class="stats-item__icon" aria-hidden="true">💎</div>
+            <div class="stats-item__info"><span class="stats-item__val" id="d-gems">—</span><span class="stats-item__label">Gems</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Daily Quests Card -->
+      <div class="right-card" id="daily-quests-card">
+        <div class="right-card__header">
+          <h3>Daily Quests</h3>
+          <button class="view-all-btn" id="btn-view-all-quests">View All</button>
+        </div>
+        <div id="daily-quests-list"></div>
+      </div>
+
+      <!-- Leaderboard Teaser -->
+      <div class="right-card" id="leaderboard-card">
+        <div class="right-card__header"><h3>🏆 Wellness Rankings</h3></div>
+        <div id="leaderboard-preview"></div>
+      </div>
+
+    </aside>
+  </div>
+
+  <!-- Mobile Bottom Nav -->
+  <nav class="mobile-bottom-nav" id="mobile-bottom-nav" aria-label="Mobile navigation">
+    <button class="mobile-nav-item" data-id="learn" aria-label="Learn" onclick="App.navigate('learn')">
+      <span class="mobile-nav-icon" aria-hidden="true">🌿</span>
+      <span>Learn</span>
+    </button>
+    <button class="mobile-nav-item" data-id="chess" aria-label="Chess" onclick="App.navigate('chess')">
+      <span class="mobile-nav-icon" aria-hidden="true">♟️</span>
+      <span>Chess</span>
+    </button>
+    <button class="mobile-nav-item" data-id="quests" aria-label="Quests" onclick="App.navigate('quests')">
+      <span class="mobile-nav-icon" aria-hidden="true">🗺️</span>
+      <span>Quests</span>
+    </button>
+    <button class="mobile-nav-item" data-id="stats" aria-label="Stats" onclick="App.openDrawer ? App.openDrawer('stats') : MobileDrawer.openDrawer()">
+      <span class="mobile-nav-icon" aria-hidden="true">📊</span>
+      <span>Stats</span>
+    </button>
+    <button class="mobile-nav-item" data-id="profile" aria-label="Profile" onclick="App.navigate('profile')">
+      <span class="mobile-nav-icon" aria-hidden="true">👤</span>
+      <span>Profile</span>
+    </button>
+  </nav>
+
+  <!-- Drawer Overlay -->
+  <div class="drawer-overlay" id="drawer-overlay" role="presentation"></div>
+
+  <!-- Stats Drawer (mobile) -->
+  <div class="mobile-drawer" id="stats-drawer" role="dialog" aria-modal="true" aria-label="Stats and quests">
+    <div class="mobile-drawer__header">
+      <h3>My Progress &amp; Quests</h3>
+      <button class="drawer-close-btn" id="btn-close-drawer" aria-label="Close">✕</button>
+    </div>
+    <div class="mobile-drawer__body" id="stats-drawer-body"></div>
+  </div>
+
+  <script src="api.js?v=2"></script>
+  <script src="app.js?v=2"></script>
+  <script src="learn.js?v=2"></script>
+</body>
+</html>

@@ -1,72 +1,24 @@
 <!DOCTYPE html>
-<html lang="tr" data-theme="dark">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Profilim — Dolphy</title>
-  <meta name="description" content="Dolphy wellness profilin, puanların, ruh hali geçmişin ve günlük yazıların." />
+  <title>Daily Wellness Path — Dolphy</title>
+  <meta name="description" content="Your daily mental wellness learning path on Dolphy." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css" />
   <style>
-    /* ── Profil sayfasına özel stiller ── */
-    .profil-page {
-      min-height: 100vh;
-      background: var(--bg-primary);
-      padding: 0 0 60px;
-    }
-
-    .profil-topbar {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      padding: 20px 24px;
-      background: var(--bg-card);
-      border-bottom: 1px solid var(--border);
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      backdrop-filter: blur(12px);
-    }
-
-    .profil-topbar__back {
-      background: var(--bg-secondary);
-      border: none;
-      color: var(--text-primary);
-      font-size: 20px;
-      width: 40px;
-      height: 40px;
-      border-radius: 12px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: background 0.2s;
-    }
-    .profil-topbar__back:hover { background: var(--accent-purple); }
-
-    .profil-topbar__logo {
-      font-family: 'Fredoka One', cursive;
-      font-size: 22px;
-      color: var(--text-primary);
-    }
-
-    .profil-topbar__theme {
-      margin-left: auto;
-      background: none;
-      border: none;
-      font-size: 20px;
-      cursor: pointer;
-    }
-
-    /* Hero bölümü */
+    /* Profil sayfasına özel stiller */
     .profil-hero {
       background: linear-gradient(135deg, var(--accent-purple) 0%, var(--accent-blue) 100%);
       padding: 48px 24px 80px;
       text-align: center;
       position: relative;
       overflow: hidden;
+      border-radius: 20px;
+      margin-bottom: 24px;
     }
 
     .profil-hero::before {
@@ -119,18 +71,6 @@
       z-index: 1;
     }
 
-    /* Stats kartları */
-    .profil-content {
-      max-width: 720px;
-      margin: -40px auto 0;
-      padding: 0 20px;
-      position: relative;
-      z-index: 2;
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-    }
-
     .profil-stats-card {
       background: var(--bg-card);
       border-radius: 20px;
@@ -140,6 +80,10 @@
       gap: 12px;
       border: 1px solid var(--border);
       box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+      margin-top: -60px;
+      position: relative;
+      z-index: 2;
+      margin-bottom: 24px;
     }
 
     .profil-stat {
@@ -163,13 +107,13 @@
       font-weight: 600;
     }
 
-    /* Bölüm kartları */
     .profil-card {
       background: var(--bg-card);
       border-radius: 20px;
       padding: 24px;
       border: 1px solid var(--border);
       box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      margin-bottom: 24px;
     }
 
     .profil-card__title {
@@ -182,7 +126,6 @@
       gap: 8px;
     }
 
-    /* Mood geçmişi */
     .mood-timeline {
       display: flex;
       gap: 8px;
@@ -205,7 +148,6 @@
     .mood-dot__emoji { font-size: 22px; }
     .mood-dot__date { font-size: 10px; color: var(--text-muted); }
 
-    /* Journal */
     .journal-entry {
       padding: 16px;
       background: var(--bg-secondary);
@@ -229,7 +171,6 @@
       line-height: 1.6;
     }
 
-    /* Tamamlanan dersler */
     .lessons-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
@@ -258,59 +199,193 @@
     .lesson-chip__name { font-weight: 700; color: var(--text-primary); font-size: 11px; }
     .lesson-chip__xp { font-size: 10px; color: var(--accent-green, #22c55e); font-weight: 700; }
 
-    /* Boş durum */
     .empty-state {
       text-align: center;
       padding: 32px 16px;
       color: var(--text-muted);
       font-size: 14px;
     }
-
     .empty-state__icon { font-size: 36px; margin-bottom: 8px; }
 
-    /* Loading */
     .profil-loading {
       text-align: center;
       padding: 80px 24px;
       color: var(--text-muted);
       font-size: 18px;
     }
-
     @media (max-width: 480px) {
       .profil-stats-card { grid-template-columns: repeat(2, 1fr); }
-      .profil-hero { padding: 36px 20px 72px; }
     }
   </style>
 </head>
 <body>
-  <div class="profil-page">
 
-    <!-- Topbar -->
-    <header class="profil-topbar">
-      <button class="profil-topbar__back" onclick="history.length > 1 ? history.back() : (window.location.href='app.html')" aria-label="Geri dön">←</button>
-      <div class="profil-topbar__logo">🐬 Dolphy</div>
-      <button class="profil-topbar__theme theme-toggle" onclick="ThemeManager.toggle()" aria-label="Tema değiştir">
+  <!-- Mobile Topbar -->
+  <header class="mobile-topbar" id="mobile-topbar" role="banner">
+    <div class="mobile-topbar__logo">🐬 Dolphy</div>
+    <div class="mobile-topbar__stats" role="status" aria-label="Your stats" onclick="App.navigate('profile')" style="cursor: pointer;">
+      <div class="stat-chip" title="Day Streak"><span class="stat-chip__icon" aria-hidden="true">🪴</span><span class="stat-chip__val" id="m-streak">—</span></div>
+      <div class="stat-chip" title="Peace Tea"><span class="stat-chip__icon" aria-hidden="true">🍵</span><span class="stat-chip__val" id="m-hp">—</span></div>
+      <div class="stat-chip" title="Wellness Points"><span class="stat-chip__icon" aria-hidden="true">⚡</span><span class="stat-chip__val" id="m-xp">—</span></div>
+      <button class="theme-toggle theme-toggle--sm" id="theme-toggle-mobile" onclick="ThemeManager.toggle()" aria-label="Toggle theme">
         <span class="theme-toggle__icon">🌙</span>
       </button>
-    </header>
-
-    <!-- Hero (kullanıcı bilgileri) -->
-    <div class="profil-hero" id="profil-hero">
-      <div class="profil-hero__avatar" id="hero-avatar">🐬</div>
-      <h1 class="profil-hero__name" id="hero-name">Yükleniyor...</h1>
-      <div class="profil-hero__email" id="hero-email"></div>
-      <div class="profil-hero__joined" id="hero-joined"></div>
     </div>
+  </header>
 
-    <!-- İçerik -->
-    <div class="profil-content" id="profil-content">
-      <div class="profil-loading">⏳ Profil yükleniyor...</div>
-    </div>
+  <div class="app-layout">
 
+    <!-- LEFT SIDEBAR -->
+    <aside class="sidebar-left" id="sidebar-left" role="navigation" aria-label="App navigation">
+      <div class="sidebar-left__logo">🐬 Dolphy</div>
+      <nav class="sidebar-nav" id="sidebar-nav" aria-label="Main menu">
+        <button class="nav-item" data-id="learn" aria-label="Learn" onclick="App.navigate('learn')">
+          <span class="nav-item__icon" aria-hidden="true">🌿</span>
+          <span class="nav-item__label">Learn</span>
+        </button>
+        <button class="nav-item" data-id="chess" aria-label="Chess" onclick="App.navigate('chess')">
+          <span class="nav-item__icon" aria-hidden="true">♟️</span>
+          <span class="nav-item__label">Chess</span>
+        </button>
+        <button class="nav-item" data-id="matches" aria-label="Matches" onclick="App.navigate('matches')">
+          <span class="nav-item__icon" aria-hidden="true">⚔️</span>
+          <span class="nav-item__label">Matches</span>
+        </button>
+        <button class="nav-item" data-id="leaderboards" aria-label="Leaderboards" onclick="App.navigate('leaderboards')">
+          <span class="nav-item__icon" aria-hidden="true">🏆</span>
+          <span class="nav-item__label">Leaderboards</span>
+        </button>
+        <button class="nav-item" data-id="quests" aria-label="Quests" onclick="App.navigate('quests')">
+          <span class="nav-item__icon" aria-hidden="true">🗺️</span>
+          <span class="nav-item__label">Quests</span>
+        </button>
+        <button class="nav-item active" data-id="profile" aria-label="Profile" onclick="App.navigate('profile')">
+          <span class="nav-item__icon" aria-hidden="true">👤</span>
+          <span class="nav-item__label">Profile</span>
+        </button>
+        <button class="nav-item" data-id="more" aria-label="More" onclick="App.navigate('more')">
+          <span class="nav-item__icon" aria-hidden="true">⚙️</span>
+          <span class="nav-item__label">More</span>
+        </button>
+      </nav>
+      <div class="sidebar-left__footer">
+        <button class="theme-toggle theme-toggle--sidebar" onclick="ThemeManager.toggle()" aria-label="Toggle theme">
+          <span class="theme-toggle__icon">🌙</span>
+          <span class="theme-toggle__label">Theme</span>
+        </button>
+        <button class="clay-btn clay-btn--ghost clay-btn--sm sidebar-logout" id="btn-exit-app" onclick="App.navigate('landing')">← Exit</button>
+      </div>
+    </aside>
+
+    <!-- MAIN CONTENT FEED -->
+    <main class="main-feed" id="main-feed" role="main">
+      <div class="content-panel" id="panel-profile">
+        
+        <!-- Hero (kullanıcı bilgileri) -->
+        <div class="profil-hero" id="profil-hero">
+          <div class="profil-hero__avatar" id="hero-avatar">🐬</div>
+          <h1 class="profil-hero__name" id="hero-name">Yükleniyor...</h1>
+          <div class="profil-hero__email" id="hero-email"></div>
+          <div class="profil-hero__joined" id="hero-joined"></div>
+        </div>
+    
+        <!-- İçerik -->
+        <div class="profil-content" id="profil-content">
+          <div class="profil-loading">⏳ Profil yükleniyor...</div>
+        </div>
+
+      </div>
+    </main>
+
+    <!-- RIGHT SIDEBAR -->
+    <aside class="sidebar-right" id="sidebar-right" role="complementary" aria-label="Stats and quests">
+
+      <!-- User Stats Card -->
+      <div class="right-card" id="user-stats-card" onclick="App.navigate('profile')" style="cursor: pointer;">
+        <div class="right-card__header"><h3>My Progress</h3></div>
+        <div class="stats-grid" role="list" aria-label="User statistics">
+          <div class="stats-item stats-item--streak" role="listitem">
+            <div class="stats-item__icon" aria-hidden="true">🪴</div>
+            <div class="stats-item__info"><span class="stats-item__val" id="d-streak">—</span><span class="stats-item__label">Streak</span></div>
+          </div>
+          <div class="stats-item stats-item--hp" role="listitem">
+            <div class="stats-item__icon" aria-hidden="true">🍵</div>
+            <div class="stats-item__info"><span class="stats-item__val" id="d-hp">—</span><span class="stats-item__label">Tea</span></div>
+          </div>
+          <div class="stats-item stats-item--xp" role="listitem">
+            <div class="stats-item__icon" aria-hidden="true">⚡</div>
+            <div class="stats-item__info"><span class="stats-item__val" id="d-xp">—</span><span class="stats-item__label">XP Pts</span></div>
+          </div>
+          <div class="stats-item stats-item--gems" role="listitem">
+            <div class="stats-item__icon" aria-hidden="true">💎</div>
+            <div class="stats-item__info"><span class="stats-item__val" id="d-gems">—</span><span class="stats-item__label">Gems</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Daily Quests Card -->
+      <div class="right-card" id="daily-quests-card">
+        <div class="right-card__header">
+          <h3>Daily Quests</h3>
+          <button class="view-all-btn" id="btn-view-all-quests">View All</button>
+        </div>
+        <div id="daily-quests-list"></div>
+      </div>
+
+      <!-- Leaderboard Teaser -->
+      <div class="right-card" id="leaderboard-card">
+        <div class="right-card__header"><h3>🏆 Wellness Rankings</h3></div>
+        <div id="leaderboard-preview"></div>
+      </div>
+
+    </aside>
   </div>
 
-  <script src="api.js"></script>
-  <script src="app.js"></script>
+  <!-- Mobile Bottom Nav -->
+  <nav class="mobile-bottom-nav" id="mobile-bottom-nav" aria-label="Mobile navigation">
+    <button class="mobile-nav-item" data-id="learn" aria-label="Learn" onclick="App.navigate('learn')">
+      <span class="mobile-nav-icon" aria-hidden="true">🌿</span>
+      <span>Learn</span>
+    </button>
+    <button class="mobile-nav-item" data-id="chess" aria-label="Chess" onclick="App.navigate('chess')">
+      <span class="mobile-nav-icon" aria-hidden="true">♟️</span>
+      <span>Chess</span>
+    </button>
+    <button class="mobile-nav-item" data-id="quests" aria-label="Quests" onclick="App.navigate('quests')">
+      <span class="mobile-nav-icon" aria-hidden="true">🗺️</span>
+      <span>Quests</span>
+    </button>
+    <button class="mobile-nav-item" data-id="stats" aria-label="Stats" onclick="App.openDrawer ? App.openDrawer('stats') : MobileDrawer.openDrawer()">
+      <span class="mobile-nav-icon" aria-hidden="true">📊</span>
+      <span>Stats</span>
+    </button>
+    <button class="mobile-nav-item active" data-id="profile" aria-label="Profile" onclick="App.navigate('profile')">
+      <span class="mobile-nav-icon" aria-hidden="true">👤</span>
+      <span>Profile</span>
+    </button>
+  </nav>
+
+  <!-- Drawer Overlay -->
+  <div class="drawer-overlay" id="drawer-overlay" role="presentation"></div>
+
+  <!-- Stats Drawer (mobile) -->
+  <div class="mobile-drawer" id="stats-drawer" role="dialog" aria-modal="true" aria-label="Stats and quests">
+    <div class="mobile-drawer__header">
+      <h3>My Progress &amp; Quests</h3>
+      <button class="drawer-close-btn" id="btn-close-drawer" aria-label="Close">✕</button>
+    </div>
+    <div class="mobile-drawer__body" id="stats-drawer-body"></div>
+  </div>
+
+  <!-- Lesson/Task Preview Modal -->
+  <div class="modal-overlay" id="lesson-modal" role="dialog" aria-modal="true" aria-label="Task details">
+    <div class="lesson-modal-card" id="lesson-modal-card"></div>
+  </div>
+
+  <script src="api.js?v=2"></script>
+  <script src="app.js?v=2"></script>
+  <script src="learn.js?v=2"></script>
+  
   <script>
     "use strict";
 
@@ -470,8 +545,9 @@
       }
     }
 
+    /* We hook into DOMContentLoaded to run loadProfile (also handled by learn.js if needed) */
     document.addEventListener('DOMContentLoaded', () => {
-      ThemeManager.init();
+      // ThemeManager.init() and stuff is already called by app.js/learn.js
       loadProfile();
     });
   </script>

@@ -83,29 +83,10 @@ class NavItem {
    SIDEBAR NAV
    ============================================================ */
 class SidebarNav {
-  static items    = [];
-  static activeId = 'learn';
-
-  static NAV_DATA = [
-    { id: 'learn',        icon: '🌿', label: 'Learn'        },
-    { id: 'chess',        icon: '♟️', label: 'Chess'        },
-    { id: 'matches',      icon: '⚔️', label: 'Matches'      },
-    { id: 'leaderboards', icon: '🏆', label: 'Leaderboards' },
-    { id: 'quests',       icon: '🗺️', label: 'Quests'       },
-    { id: 'profile',      icon: '👤', label: 'Profile'      },
-    { id: 'more',         icon: '⚙️', label: 'More'         },
-  ];
-
-  static init(container) {
-    SidebarNav.items = SidebarNav.NAV_DATA.map(data =>
-      new NavItem({ ...data, isActive: data.id === SidebarNav.activeId })
-    );
-    SidebarNav.items.forEach(item => container.appendChild(item.el));
-  }
-
   static setActive(id) {
-    SidebarNav.activeId = id;
-    SidebarNav.items.forEach(item => item.setActive(item.id === id));
+    document.querySelectorAll('.nav-item').forEach(el => {
+      el.classList.toggle('active', el.dataset.id === id);
+    });
   }
 }
 
@@ -147,27 +128,10 @@ class MobileNavItem {
    MOBILE NAV
    ============================================================ */
 class MobileNav {
-  static items    = [];
-  static activeId = 'learn';
-
-  static NAV_DATA = [
-    { id: 'learn',   icon: '🌿', label: 'Learn'   },
-    { id: 'chess',   icon: '♟️', label: 'Chess'   },
-    { id: 'quests',  icon: '🗺️', label: 'Quests'  },
-    { id: 'stats',   icon: '📊', label: 'Stats'   },
-    { id: 'profile', icon: '👤', label: 'Profile' },
-  ];
-
-  static init(container) {
-    MobileNav.items = MobileNav.NAV_DATA.map(data =>
-      new MobileNavItem({ ...data, isActive: data.id === MobileNav.activeId })
-    );
-    MobileNav.items.forEach(item => container.appendChild(item.el));
-  }
-
   static setActive(id) {
-    MobileNav.activeId = id;
-    MobileNav.items.forEach(item => item.setActive(item.id === id));
+    document.querySelectorAll('.mobile-nav-item').forEach(el => {
+      el.classList.toggle('active', el.dataset.id === id);
+    });
   }
 }
 
@@ -712,21 +676,30 @@ class MobileDrawer {
 /* ============================================================
    APP PAGE INIT — DOMContentLoaded for app.html
    ============================================================ */
-document.addEventListener('DOMContentLoaded', () => {
-  /* Left sidebar nav */
-  const sidebarNav = document.getElementById('sidebar-nav');
-  if (sidebarNav) SidebarNav.init(sidebarNav);
+document.addEventListener('DOMContentLoaded', async () => {
+  /* Left sidebar nav and Mobile bottom nav are now static HTML in app.html */
 
-  /* Mobile bottom nav */
-  const mobileNav = document.getElementById('mobile-bottom-nav');
-  if (mobileNav) MobileNav.init(mobileNav);
+  /* Automatically detect the current page's panel and show it */
+  const activePanel = document.querySelector('.content-panel');
+  if (activePanel) {
+    const pageId = activePanel.id.replace('panel-', '');
+    PanelManager.show(pageId);
+  }
 
-  /* Show learn panel by default */
-  PanelManager.show('learn');
-
-  /* Node path */
+  /* Node path — önce cache'den (hızlı ilk boyama), sonra backend'den
+     gerçek "hangi lesson'lar tamamlandı" verisini bekleyip yeniden çizeriz.
+     (app.js'deki LessonTracker.syncFromAPI() bunu asenkron ve "fire and
+     forget" şekilde çağırıyor; ona sadece güvenmek burada bir yarış
+     durumuna yol açıyordu — path, DB'deki gerçek ilerleme gelmeden,
+     boş/eski cache ile çiziliyor ve BİR DAHA yeniden çizilmiyordu.) */
   const canvas = document.getElementById('node-path-canvas');
-  if (canvas) PathManager.init(canvas);
+  if (canvas) {
+    PathManager.init(canvas);
+    if (typeof API !== 'undefined' && API.isLoggedIn()) {
+      await LessonTracker.syncFromAPI();
+      PathManager._render();
+    }
+  }
 
   /* Drawer — önce drawer içeriğini oluştur ki mobile-drawer-quests DOM'da olsun */
   MobileDrawer.init();

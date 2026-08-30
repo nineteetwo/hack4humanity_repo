@@ -28,7 +28,7 @@ class QuestSolver {
     this._submission = { task_type: lesson.taskType, mood_value: null, text_content: null };
   }
 
-  static init() {
+  static async init() {
     const params   = new URLSearchParams(window.location.search);
     const lessonId = params.get('lesson');
     const lesson   = LESSON_DATA.find(l => l.id === lessonId);
@@ -50,8 +50,21 @@ class QuestSolver {
     const solver = new QuestSolver(lesson);
     solver.render(document.getElementById('quest-content'));
 
-    /* Already completed? */
-    if (LessonTracker.isComplete(lessonId)) {
+    /* Already completed? Bunu birbaşa API-dan soruşuruq (localStorage
+       cache-i app.js-in ayrı DOMContentLoaded listener-i asenkron
+       doldurur — bu, "əvvəlcə köhnə/boş cache-ə baxıb sonra sync olunur"
+       kimi bir yarış vəziyyəti (race condition) yaradırdı ki, bu da
+       artıq tamamlanmış tapşırığı "tamamlanmamış" kimi göstərə bilərdi). */
+    let alreadyComplete = LessonTracker.isComplete(lessonId);
+    if (typeof API !== 'undefined' && API.isLoggedIn()) {
+      try {
+        const completed = await API.lessons.getCompleted();
+        alreadyComplete = completed.includes(lessonId);
+      } catch (e) {
+        console.warn('[QuestSolver] completed-lessons check failed, using cache:', e.message);
+      }
+    }
+    if (alreadyComplete) {
       solver._showAlreadyComplete();
     }
   }

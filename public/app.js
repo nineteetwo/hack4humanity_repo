@@ -294,7 +294,14 @@ class App {
     'landing': 'index.html',
     'signup':  'signup.html',
     'login':   'login.html',
-    'app':     'app.html',
+    'app':     'learn.html',
+    'learn':   'learn.html',
+    'chess':   'chess.html',
+    'matches': 'matches.html',
+    'leaderboards': 'leaderboards.html',
+    'quests':  'quests.html',
+    'more':    'more.html',
+    'profile': 'profil.html',
   };
 
   static navigate(page) {

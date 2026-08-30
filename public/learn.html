@@ -15,7 +15,7 @@
   <!-- Mobile Topbar -->
   <header class="mobile-topbar" id="mobile-topbar" role="banner">
     <div class="mobile-topbar__logo">🐬 Dolphy</div>
-    <div class="mobile-topbar__stats" role="status" aria-label="Your stats">
+    <div class="mobile-topbar__stats" role="status" aria-label="Your stats" onclick="App.navigate('profile')" style="cursor: pointer;">
       <div class="stat-chip" title="Day Streak"><span class="stat-chip__icon" aria-hidden="true">🪴</span><span class="stat-chip__val" id="m-streak">—</span></div>
       <div class="stat-chip" title="Peace Tea"><span class="stat-chip__icon" aria-hidden="true">🍵</span><span class="stat-chip__val" id="m-hp">—</span></div>
       <div class="stat-chip" title="Wellness Points"><span class="stat-chip__icon" aria-hidden="true">⚡</span><span class="stat-chip__val" id="m-xp">—</span></div>
@@ -30,7 +30,36 @@
     <!-- LEFT SIDEBAR -->
     <aside class="sidebar-left" id="sidebar-left" role="navigation" aria-label="App navigation">
       <div class="sidebar-left__logo">🐬 Dolphy</div>
-      <nav class="sidebar-nav" id="sidebar-nav" aria-label="Main menu"></nav>
+      <nav class="sidebar-nav" id="sidebar-nav" aria-label="Main menu">
+        <button class="nav-item active" data-id="learn" aria-label="Learn" onclick="App.navigate('learn')">
+          <span class="nav-item__icon" aria-hidden="true">🌿</span>
+          <span class="nav-item__label">Learn</span>
+        </button>
+        <button class="nav-item" data-id="chess" aria-label="Chess" onclick="App.navigate('chess')">
+          <span class="nav-item__icon" aria-hidden="true">♟️</span>
+          <span class="nav-item__label">Chess</span>
+        </button>
+        <button class="nav-item" data-id="matches" aria-label="Matches" onclick="App.navigate('matches')">
+          <span class="nav-item__icon" aria-hidden="true">⚔️</span>
+          <span class="nav-item__label">Matches</span>
+        </button>
+        <button class="nav-item" data-id="leaderboards" aria-label="Leaderboards" onclick="App.navigate('leaderboards')">
+          <span class="nav-item__icon" aria-hidden="true">🏆</span>
+          <span class="nav-item__label">Leaderboards</span>
+        </button>
+        <button class="nav-item" data-id="quests" aria-label="Quests" onclick="App.navigate('quests')">
+          <span class="nav-item__icon" aria-hidden="true">🗺️</span>
+          <span class="nav-item__label">Quests</span>
+        </button>
+        <button class="nav-item" data-id="profile" aria-label="Profile" onclick="App.navigate('profile')">
+          <span class="nav-item__icon" aria-hidden="true">👤</span>
+          <span class="nav-item__label">Profile</span>
+        </button>
+        <button class="nav-item" data-id="more" aria-label="More" onclick="App.navigate('more')">
+          <span class="nav-item__icon" aria-hidden="true">⚙️</span>
+          <span class="nav-item__label">More</span>
+        </button>
+      </nav>
       <div class="sidebar-left__footer">
         <button class="theme-toggle theme-toggle--sidebar" onclick="ThemeManager.toggle()" aria-label="Toggle theme">
           <span class="theme-toggle__icon">🌙</span>
@@ -42,7 +71,6 @@
 
     <!-- MAIN CONTENT FEED -->
     <main class="main-feed" id="main-feed" role="main">
-
       <!-- LEARN PANEL -->
       <div class="content-panel" id="panel-learn">
         <div class="section-banner" id="section-banner">
@@ -55,35 +83,13 @@
         </div>
         <div class="node-path-canvas" id="node-path-canvas" role="list" aria-label="Wellness task path"></div>
       </div>
-
-      <!-- CHESS PANEL -->
-      <div class="content-panel" id="panel-chess" style="display:none;"></div>
-
-      <!-- PLACEHOLDER PANELS -->
-      <div class="content-panel" id="panel-leaderboards" style="display:none;">
-        <div class="lb-full-panel">
-          <h2 class="lb-full-panel__title">🏆 Wellness Rankings</h2>
-          <p class="lb-full-panel__sub">Puana göre sıralanmış gerçek kullanıcılar</p>
-          <div id="lb-full-list"><div class="lb-loading">⏳ Yükleniyor...</div></div>
-        </div>
-      </div>
-      <div class="content-panel" id="panel-quests" style="display:none;">
-        <div class="placeholder-panel"><div class="placeholder-panel__emoji">🗺️</div><h2>Weekly Quests</h2><p>Special weekly wellness challenges appear here. Keep up your streak!</p></div>
-      </div>
-
-      <div class="content-panel" id="panel-matches" style="display:none;">
-        <div class="placeholder-panel"><div class="placeholder-panel__emoji">🤝</div><h2>Buddy System</h2><p>Connect with a wellness buddy and support each other — coming soon!</p></div>
-      </div>
-      <div class="content-panel" id="panel-more" style="display:none;">
-        <div class="placeholder-panel"><div class="placeholder-panel__emoji">⚙️</div><h2>Settings</h2><p>Notification preferences, accessibility options, and more — coming soon!</p></div>
-      </div>
     </main>
 
     <!-- RIGHT SIDEBAR -->
     <aside class="sidebar-right" id="sidebar-right" role="complementary" aria-label="Stats and quests">
 
       <!-- User Stats Card -->
-      <div class="right-card" id="user-stats-card">
+      <div class="right-card" id="user-stats-card" onclick="App.navigate('profile')" style="cursor: pointer;">
         <div class="right-card__header"><h3>My Progress</h3></div>
         <div class="stats-grid" role="list" aria-label="User statistics">
           <div class="stats-item stats-item--streak" role="listitem">
@@ -124,7 +130,28 @@
   </div>
 
   <!-- Mobile Bottom Nav -->
-  <nav class="mobile-bottom-nav" id="mobile-bottom-nav" aria-label="Mobile navigation"></nav>
+  <nav class="mobile-bottom-nav" id="mobile-bottom-nav" aria-label="Mobile navigation">
+    <button class="mobile-nav-item active" data-id="learn" aria-label="Learn" onclick="App.navigate('learn')">
+      <span class="mobile-nav-icon" aria-hidden="true">🌿</span>
+      <span>Learn</span>
+    </button>
+    <button class="mobile-nav-item" data-id="chess" aria-label="Chess" onclick="App.navigate('chess')">
+      <span class="mobile-nav-icon" aria-hidden="true">♟️</span>
+      <span>Chess</span>
+    </button>
+    <button class="mobile-nav-item" data-id="quests" aria-label="Quests" onclick="App.navigate('quests')">
+      <span class="mobile-nav-icon" aria-hidden="true">🗺️</span>
+      <span>Quests</span>
+    </button>
+    <button class="mobile-nav-item" data-id="stats" aria-label="Stats" onclick="App.openDrawer ? App.openDrawer('stats') : MobileDrawer.openDrawer()">
+      <span class="mobile-nav-icon" aria-hidden="true">📊</span>
+      <span>Stats</span>
+    </button>
+    <button class="mobile-nav-item" data-id="profile" aria-label="Profile" onclick="App.navigate('profile')">
+      <span class="mobile-nav-icon" aria-hidden="true">👤</span>
+      <span>Profile</span>
+    </button>
+  </nav>
 
   <!-- Drawer Overlay -->
   <div class="drawer-overlay" id="drawer-overlay" role="presentation"></div>
@@ -143,9 +170,8 @@
     <div class="lesson-modal-card" id="lesson-modal-card"></div>
   </div>
 
-  <script src="api.js"></script>
-  <script src="app.js"></script>
-  <script src="chess.js"></script>
-  <script src="learn.js"></script>
+  <script src="api.js?v=2"></script>
+  <script src="app.js?v=2"></script>
+  <script src="learn.js?v=2"></script>
 </body>
 </html>
