@@ -61,17 +61,16 @@
 
       <!-- PLACEHOLDER PANELS -->
       <div class="content-panel" id="panel-leaderboards" style="display:none;">
-        <div class="placeholder-panel"><div class="placeholder-panel__emoji">🏆</div><h2>Leaderboards</h2><p>Complete more daily tasks to unlock competitive wellness rankings!</p></div>
+        <div class="lb-full-panel">
+          <h2 class="lb-full-panel__title">🏆 Wellness Rankings</h2>
+          <p class="lb-full-panel__sub">Puana göre sıralanmış gerçek kullanıcılar</p>
+          <div id="lb-full-list"><div class="lb-loading">⏳ Yükleniyor...</div></div>
+        </div>
       </div>
       <div class="content-panel" id="panel-quests" style="display:none;">
         <div class="placeholder-panel"><div class="placeholder-panel__emoji">🗺️</div><h2>Weekly Quests</h2><p>Special weekly wellness challenges appear here. Keep up your streak!</p></div>
       </div>
-      <div class="content-panel" id="panel-shop" style="display:none;">
-        <div class="placeholder-panel"><div class="placeholder-panel__emoji">🛍️</div><h2>Shop</h2><p>Spend your Gems on themes, power-ups, and wellness extras — coming soon!</p></div>
-      </div>
-      <div class="content-panel" id="panel-profile" style="display:none;">
-        <div class="placeholder-panel"><div class="placeholder-panel__emoji">👤</div><h2>Profile</h2><p>View your wellness history, mood trends, and journal entries — coming soon!</p></div>
-      </div>
+
       <div class="content-panel" id="panel-matches" style="display:none;">
         <div class="placeholder-panel"><div class="placeholder-panel__emoji">🤝</div><h2>Buddy System</h2><p>Connect with a wellness buddy and support each other — coming soon!</p></div>
       </div>
@@ -118,25 +117,9 @@
       <!-- Leaderboard Teaser -->
       <div class="right-card" id="leaderboard-card">
         <div class="right-card__header"><h3>🏆 Wellness Rankings</h3></div>
-        <div class="leaderboard-unlock">
-          <div class="leaderboard-unlock__icon" aria-hidden="true">🔒</div>
-          <p>Complete <strong>2 more tasks</strong> to unlock wellness rankings!</p>
-          <div class="xp-progress-wrap">
-            <div class="xp-progress-bar" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" aria-label="Ranking unlock progress">
-              <div class="xp-progress-fill" style="width:60%"></div>
-            </div>
-            <span class="xp-progress-label">3/5 Tasks</span>
-          </div>
-        </div>
         <div id="leaderboard-preview"></div>
       </div>
 
-      <!-- CTA Card -->
-      <div class="right-card right-card--cta" id="cta-card">
-        <p>🌱 Save your progress and access Dolphy across all your devices!</p>
-        <button class="clay-btn clay-btn--primary clay-btn--full" id="btn-create-profile-cta" onclick="App.navigate('signup')">Create a Free Profile</button>
-        <button class="clay-btn clay-btn--ghost clay-btn--full" id="btn-signin-cta" onclick="App.navigate('login')">Sign In</button>
-      </div>
     </aside>
   </div>
 
@@ -160,6 +143,7 @@
     <div class="lesson-modal-card" id="lesson-modal-card"></div>
   </div>
 
+  <script src="api.js"></script>
   <script src="app.js"></script>
   <script src="chess.js"></script>
   <script src="learn.js"></script>

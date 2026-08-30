@@ -3,7 +3,7 @@
  * DOLPHY — login.js
  * Loaded ONLY by login.html.
  * ============================================================
- * Depends on: app.js (ThemeManager, App, DesignSystem)
+ * Depends on: api.js (API), app.js (ThemeManager, App, DesignSystem)
  * ============================================================
  */
 
@@ -11,6 +11,12 @@
 
 class LoginPage {
   static init() {
+    /* Zaten giriş yapılmışsa app'e yönlendir */
+    if (API.isLoggedIn()) {
+      App.navigate('app');
+      return;
+    }
+
     /* Form submit */
     const form = document.getElementById('login-form');
     if (form) {
@@ -36,7 +42,7 @@ class LoginPage {
       alert('Password reset coming soon! For now, try signing up again.');
     });
 
-    /* Social buttons */
+    /* Social buttons — sadece navigate, gerçek OAuth değil */
     document.getElementById('btn-google-login')?.addEventListener('click', () => App.navigate('app'));
     document.getElementById('btn-facebook-login')?.addEventListener('click', () => App.navigate('app'));
     document.getElementById('link-signup')?.addEventListener('click', (e) => {
@@ -45,7 +51,7 @@ class LoginPage {
     document.getElementById('btn-back')?.addEventListener('click', () => App.navigate('landing'));
   }
 
-  static handleSubmit() {
+  static async handleSubmit() {
     const email = document.getElementById('login-email')?.value?.trim();
     const pw    = document.getElementById('login-password')?.value;
 
@@ -54,9 +60,26 @@ class LoginPage {
       return;
     }
 
-    /* Basic session (no real auth) */
-    localStorage.setItem('dolphy-user', JSON.stringify({ email }));
-    App.navigate('app');
+    const submitBtn = document.getElementById('login-submit-btn') ||
+                      document.querySelector('#login-form button[type="submit"]');
+    const originalText = submitBtn?.textContent;
+
+    try {
+      /* UI: yükleniyor durumu */
+      if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Signing in…'; }
+      LoginPage._clearError();
+
+      /* Gerçek API çağrısı */
+      await API.auth.login(email, pw);
+
+      /* Başarılı — app'e git */
+      App.navigate('app');
+
+    } catch (err) {
+      LoginPage._showError(err.message || 'Login failed. Please try again.');
+    } finally {
+      if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = originalText; }
+    }
   }
 
   static _showError(msg) {
@@ -69,6 +92,11 @@ class LoginPage {
     }
     errEl.textContent = msg;
     DesignSystem.shake(errEl);
+  }
+
+  static _clearError() {
+    const errEl = document.getElementById('login-error');
+    if (errEl) errEl.textContent = '';
   }
 }
 

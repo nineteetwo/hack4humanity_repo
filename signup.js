@@ -3,7 +3,7 @@
  * DOLPHY — signup.js
  * Loaded ONLY by signup.html.
  * ============================================================
- * Depends on: app.js (ThemeManager, App)
+ * Depends on: api.js (API), app.js (ThemeManager, App, DesignSystem)
  * ============================================================
  */
 
@@ -11,6 +11,12 @@
 
 class SignupPage {
   static init() {
+    /* Zaten giriş yapılmışsa app'e yönlendir */
+    if (API.isLoggedIn()) {
+      App.navigate('app');
+      return;
+    }
+
     /* Password visibility toggle */
     const toggleBtn = document.getElementById('btn-toggle-password');
     const pwInput   = document.getElementById('signup-password');
@@ -38,10 +44,12 @@ class SignupPage {
     document.getElementById('btn-back')?.addEventListener('click', () => App.navigate('landing'));
   }
 
-  static handleSubmit() {
+  static async handleSubmit() {
     const email = document.getElementById('signup-email')?.value?.trim();
     const pw    = document.getElementById('signup-password')?.value;
+    const name  = document.getElementById('signup-name')?.value?.trim() || '';
 
+    /* Client-side validasyon */
     if (!email || !pw) {
       SignupPage._showError('Please fill in your email and password.');
       return;
@@ -55,11 +63,26 @@ class SignupPage {
       return;
     }
 
-    /* Save basic session (no real auth here) */
-    localStorage.setItem('dolphy-user', JSON.stringify({ email, name: document.getElementById('signup-name')?.value || '' }));
+    const submitBtn = document.getElementById('signup-submit-btn') ||
+                      document.querySelector('#signup-form button[type="submit"]');
+    const originalText = submitBtn?.textContent;
 
-    /* Navigate to app */
-    App.navigate('app');
+    try {
+      /* UI: yükleniyor durumu */
+      if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Creating account…'; }
+      SignupPage._clearError();
+
+      /* Gerçek API çağrısı */
+      await API.auth.signup(email, pw, name);
+
+      /* Başarılı — app'e git */
+      App.navigate('app');
+
+    } catch (err) {
+      SignupPage._showError(err.message || 'Signup failed. Please try again.');
+    } finally {
+      if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = originalText; }
+    }
   }
 
   static _showError(msg) {
@@ -72,6 +95,11 @@ class SignupPage {
     }
     errEl.textContent = msg;
     DesignSystem.shake(errEl);
+  }
+
+  static _clearError() {
+    const errEl = document.getElementById('signup-error');
+    if (errEl) errEl.textContent = '';
   }
 }
 

@@ -21,9 +21,11 @@
 
 class QuestSolver {
   constructor(lesson) {
-    this.lesson    = lesson;
-    this.completed = false;
-    this.timerRef  = null;
+    this.lesson      = lesson;
+    this.completed   = false;
+    this.timerRef    = null;
+    // Submission payload: mood ve journal tiplerinde doldurulur
+    this._submission = { task_type: lesson.taskType, mood_value: null, text_content: null };
   }
 
   static init() {
@@ -184,9 +186,10 @@ class QuestSolver {
     document.getElementById('qs-mood-submit')?.addEventListener('click', () => {
       if (selectedVal !== null) {
         const note = document.getElementById('mood-note')?.value || '';
-        const moods = JSON.parse(localStorage.getItem('dolphy-moods') || '[]');
-        moods.push({ date: new Date().toISOString(), mood: selectedVal, note });
-        localStorage.setItem('dolphy-moods', JSON.stringify(moods));
+        // Submission payload'unu doldur — complete() bunu API'ye gönderecek
+        this._submission.task_type   = 'mood';
+        this._submission.mood_value  = selectedVal;
+        this._submission.text_content = note || null;
         this.complete();
       }
     });
@@ -224,10 +227,9 @@ class QuestSolver {
     });
 
     submitBtn.addEventListener('click', () => {
-      const entry = { date: new Date().toISOString(), title: this.lesson.title, text: textarea.value };
-      const entries = JSON.parse(localStorage.getItem('dolphy-journal') || '[]');
-      entries.push(entry);
-      localStorage.setItem('dolphy-journal', JSON.stringify(entries));
+      // Submission payload'unu doldur — complete() bunu API'ye gönderecek
+      this._submission.task_type    = 'journal';
+      this._submission.text_content = textarea.value;
       this.complete();
     });
   }
@@ -372,26 +374,59 @@ class QuestSolver {
     content.prepend(banner);
   }
 
-  /* ── COMPLETE ────────────────────────────────────────── */
-  complete() {
+  /* ── COMPLETE ───────────────────────────────────────────── */
+  async complete() {
     if (this.completed) return;
     this.completed = true;
     if (this.timerRef) clearInterval(this.timerRef);
 
-    /* Save progress */
+    /* XP burst görseli hemen göster (kullanıcı beklemek zorunda kalmasın) */
+    new XPBurst(window.innerWidth / 2, window.innerHeight / 2, this.lesson.emoji || '⭐').fire(8);
+
+    /* Backend'e submission gönder + stats güncelle */
+    if (typeof API !== 'undefined' && API.isLoggedIn()) {
+      try {
+        const result = await API.quests.submit(this.lesson.id, this._submission);
+
+        /* Cache'i backend'deki gerçek değerlerle güncelle */
+        if (result.user) {
+          StatsPanel._save({
+            streak: result.user.streak,
+            hp:     result.user.hp,
+            xp:     result.user.xp,
+            gems:   result.user.gems,
+          });
+          StatsPanel.update();
+        }
+        LessonTracker.markComplete(this.lesson.id);
+
+        this._showCompletionOverlay(result.xp_awarded);
+
+      } catch (err) {
+        console.error('[QuestSolver] submit failed:', err.message);
+        /* API hatasında yerel fallback ile devam et */
+        this._localComplete();
+      }
+    } else {
+      /* Giriş yapılmamış — localStorage fallback */
+      this._localComplete();
+    }
+  }
+
+  /** API bağlantısı yoksa veya hata alınırsa yerel kayıt yap. */
+  _localComplete() {
     LessonTracker.markComplete(this.lesson.id);
     StatsPanel.addXP(this.lesson.xp);
     StatsPanel.incrementStreak();
+    this._showCompletionOverlay(this.lesson.xp);
+  }
 
-    /* XP burst */
-    new XPBurst(window.innerWidth / 2, window.innerHeight / 2, this.lesson.emoji || '⭐').fire(8);
-
-    /* Show completion overlay */
+  _showCompletionOverlay(xpAwarded) {
     const overlay = document.getElementById('quest-complete-overlay');
     if (overlay) {
       document.getElementById('overlay-emoji').textContent = this.lesson.emoji;
       document.getElementById('overlay-title').textContent = 'Task Complete!';
-      document.getElementById('overlay-xp').textContent = `+${this.lesson.xp} Wellness Points`;
+      document.getElementById('overlay-xp').textContent = `+${xpAwarded} Wellness Points`;
       overlay.classList.add('open');
     }
   }

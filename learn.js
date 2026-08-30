@@ -23,8 +23,6 @@ class PanelManager {
     'matches':      'panel-matches',
     'leaderboards': 'panel-leaderboards',
     'quests':       'panel-quests',
-    'shop':         'panel-shop',
-    'profile':      'panel-profile',
     'more':         'panel-more',
   };
 
@@ -64,6 +62,10 @@ class NavItem {
       <span class="nav-item__label">${this.label}</span>
     `;
     btn.addEventListener('click', () => {
+      if (this.id === 'profile') {
+        window.location.href = 'profil.html';
+        return;
+      }
       SidebarNav.setActive(this.id);
       MobileNav.setActive(this.id);
       PanelManager.show(this.id);
@@ -90,7 +92,6 @@ class SidebarNav {
     { id: 'matches',      icon: '⚔️', label: 'Matches'      },
     { id: 'leaderboards', icon: '🏆', label: 'Leaderboards' },
     { id: 'quests',       icon: '🗺️', label: 'Quests'       },
-    { id: 'shop',         icon: '🛍️', label: 'Shop'         },
     { id: 'profile',      icon: '👤', label: 'Profile'      },
     { id: 'more',         icon: '⚙️', label: 'More'         },
   ];
@@ -127,6 +128,7 @@ class MobileNavItem {
     btn.setAttribute('aria-label', this.label);
     btn.innerHTML  = `<span class="mobile-nav-icon" aria-hidden="true">${this.icon}</span><span>${this.label}</span>`;
     btn.addEventListener('click', () => {
+      if (this.id === 'profile') { window.location.href = 'profil.html'; return; }
       if (this.id === 'stats') { App.openDrawer && App.openDrawer('stats'); MobileDrawer.openDrawer(); return; }
       MobileNav.setActive(this.id);
       SidebarNav.setActive(this.id);
@@ -529,20 +531,46 @@ class QuestCard {
 }
 
 /* ============================================================
-   QUEST MANAGER
+   QUEST MANAGER — Dynamic from completed lessons (API)
    ============================================================ */
 class QuestManager {
   static quests = [];
 
-  static QUEST_DATA = [
-    { id: 'q1', icon: '🌅', label: 'Complete a breathing task',  reward: '+10 💎', current: 1,  total: 3  },
-    { id: 'q2', icon: '📝', label: 'Journal for 3 days',         reward: '+20 💎', current: 1,  total: 3  },
-    { id: 'q3', icon: '💬', label: 'Connect with someone',        reward: '+15 💎', current: 0,  total: 1  },
-    { id: 'q4', icon: '🌿', label: 'Maintain your streak',        reward: '+5 💎',  current: 3,  total: 5  },
+  /* İleride backend'den çekilebilir; şimdilik sabit hedefler,
+     ilerlemeler gerçek tamamlanan lesson verisinden hesaplanır. */
+  static QUEST_DEFINITIONS = [
+    { id: 'q-breathe', icon: '🌅', label: 'Breathing görevi tamamla', reward: '+10 💎', taskType: 'breathe', total: 3 },
+    { id: 'q-journal', icon: '📝', label: '3 gün günlük yaz', reward: '+20 💎', taskType: 'journal', total: 3 },
+    { id: 'q-connect', icon: '💬', label: 'Biriyle bağlantı kur', reward: '+15 💎', taskType: 'confirm', total: 1 },
+    { id: 'q-streak',  icon: '🌿', label: 'Serisini koru (5 gün)', reward: '+5 💎',  taskType: '_streak', total: 5 },
   ];
 
-  static init(containerIds) {
-    QuestManager.quests = QuestManager.QUEST_DATA.map(d => new QuestCard(d));
+  static async init(containerIds) {
+    let submissions = [];
+    let userStreak = 0;
+    try {
+      if (API.isLoggedIn()) {
+        submissions = await API.quests.mySubmissions();
+        const me = StatsPanel.state;
+        userStreak = me.streak || 0;
+      }
+    } catch (e) {
+      console.warn('[QuestManager] Submission sync failed:', e.message);
+    }
+
+    /* Tamamlanan task type sayılarını hesapla */
+    const counts = {};
+    submissions.forEach(s => {
+      counts[s.task_type] = (counts[s.task_type] || 0) + 1;
+    });
+
+    QuestManager.quests = QuestManager.QUEST_DEFINITIONS.map(def => {
+      const current = def.taskType === '_streak'
+        ? Math.min(userStreak, def.total)
+        : Math.min(counts[def.taskType] || 0, def.total);
+      return new QuestCard({ ...def, current });
+    });
+
     containerIds.forEach(id => {
       const el = document.getElementById(id);
       if (!el) return;
@@ -582,25 +610,31 @@ class LeaderboardEntry {
 }
 
 /* ============================================================
-   LEADERBOARD PANEL
+   LEADERBOARD PANEL (sağ sidebar önizleme, API'dan)
    ============================================================ */
 class LeaderboardPanel {
-  static ENTRIES = [
-    { rank: 1, avatar: '🌸', name: 'MindfulMaya',   xp: 4820 },
-    { rank: 2, avatar: '🦋', name: 'CalmSeeker',    xp: 4110 },
-    { rank: 3, avatar: '🌿', name: 'ZenWalker',     xp: 3980 },
-    { rank: 4, avatar: '💧', name: 'You',            xp: StatsPanel.state.xp, isMe: true },
-    { rank: 5, avatar: '🌺', name: 'PeacefulMind',  xp: 2890 },
-  ];
+  static AVATARS = ['🌸','🦋','🌿','💧','🌺','🌟','💫','✨','🌈','🐬'];
 
-  static init(container) {
+  static async init(container) {
     if (!container) return;
-    const wrap = document.createElement('div');
-    wrap.style.cssText = 'display:flex;flex-direction:column;gap:8px;';
-    LeaderboardPanel.ENTRIES.forEach(data => {
-      wrap.appendChild(new LeaderboardEntry(data).el);
-    });
-    container.appendChild(wrap);
+    container.innerHTML = '<div class="lb-loading">⏳ Yükleniyor...</div>';
+    try {
+      const entries = await API.leaderboard.top(5);
+      const myName  = StatsPanel.state.name || '';
+
+      container.innerHTML = '';
+      const wrap = document.createElement('div');
+      wrap.style.cssText = 'display:flex;flex-direction:column;gap:8px;';
+
+      entries.forEach((e, i) => {
+        const isMe = !!myName && e.name === myName;
+        const avatar = LeaderboardPanel.AVATARS[i % LeaderboardPanel.AVATARS.length];
+        wrap.appendChild(new LeaderboardEntry({ rank: e.rank, avatar, name: e.name, xp: e.xp, isMe }).el);
+      });
+      container.appendChild(wrap);
+    } catch (err) {
+      container.innerHTML = '<p style="color:var(--text-muted);font-size:12px;padding:8px">Puan tablosu yüklenemedi.</p>';
+    }
   }
 }
 
@@ -694,15 +728,15 @@ document.addEventListener('DOMContentLoaded', () => {
   const canvas = document.getElementById('node-path-canvas');
   if (canvas) PathManager.init(canvas);
 
-  /* Quests */
-  QuestManager.init(['daily-quests-list', 'mobile-drawer-quests']);
-
-  /* Leaderboard preview */
-  LeaderboardPanel.init(document.getElementById('leaderboard-preview'));
-
-  /* Drawer */
+  /* Drawer — önce drawer içeriğini oluştur ki mobile-drawer-quests DOM'da olsun */
   MobileDrawer.init();
   _buildMobileDrawerContent();
+
+  /* Quests (async — API'dan dinamik; drawer zaten oluştuktan sonra çağrılıyor) */
+  QuestManager.init(['daily-quests-list', 'mobile-drawer-quests']);
+
+  /* Sağ sidebar leaderboard preview (API'dan) */
+  LeaderboardPanel.init(document.getElementById('leaderboard-preview'));
 
   /* Lesson modal close on overlay click */
   const lessonModal = document.getElementById('lesson-modal');
@@ -716,6 +750,11 @@ document.addEventListener('DOMContentLoaded', () => {
   /* Mobile stats chip → open drawer */
   document.querySelectorAll('.stat-chip').forEach(chip => {
     chip.addEventListener('click', MobileDrawer.openDrawer);
+  });
+
+  /* Leaderboards panel açılınca API'dan yükle */
+  document.querySelectorAll('[data-id="leaderboards"], .nav-item[aria-label="Leaderboards"]').forEach(btn => {
+    btn.addEventListener('click', () => _loadFullLeaderboard());
   });
 });
 
@@ -740,7 +779,49 @@ function _buildMobileDrawerContent() {
       <div class="right-card__header"><h3>Daily Quests</h3></div>
       <div id="mobile-drawer-quests"></div>
     </div>
-    <button class="clay-btn clay-btn--ghost clay-btn--full" onclick="App.navigate('login')">Sign In / Create Profile</button>
   `;
   StatsPanel.update();
 }
+
+/* ============================================================
+   FULL LEADERBOARD PANEL (İç panel — API'dan)
+   ============================================================ */
+async function _loadFullLeaderboard() {
+  const container = document.getElementById('lb-full-list');
+  if (!container) return;
+  container.innerHTML = '<div class="lb-loading">⏳ Yükleniyor...</div>';
+  try {
+    const entries = await API.leaderboard.top(20);
+    const myName  = StatsPanel.state.name || '';
+    const AVATARS = ['🌸','🦋','🌿','💧','🌺','🌟','💫','✨','🌈','🐬','🎕','🐢','🦦','🍎','🌊','🚲','🎂','🦁','🧊','🐊'];
+    container.innerHTML = '';
+    if (!entries.length) {
+      container.innerHTML = '<p style="color:var(--text-muted);text-align:center;padding:24px">🚀 Henüz kayıtlı kullanıcı yok!</p>';
+      return;
+    }
+    const wrap = document.createElement('div');
+    wrap.style.cssText = 'display:flex;flex-direction:column;gap:10px;';
+    entries.forEach((e, i) => {
+      const isMe  = !!myName && e.name === myName;
+      const avatar = AVATARS[i % AVATARS.length];
+      const div = document.createElement('div');
+      div.className = `leaderboard-entry${isMe ? ' leaderboard-entry--me' : ''}`;
+      const RANK_CLASSES = { 1:'lb-rank--gold', 2:'lb-rank--silver', 3:'lb-rank--bronze' };
+      div.innerHTML = `
+        <span class="lb-rank ${RANK_CLASSES[e.rank] || ''}">${e.rank}</span>
+        <div class="lb-avatar" aria-hidden="true">${avatar}</div>
+        <span class="lb-name">${e.name}${isMe ? ' (Sen)' : ''}</span>
+        <div style="margin-left:auto;text-align:right">
+          <span class="lb-xp">${e.xp.toLocaleString()} pts</span>
+          <div style="font-size:11px;color:var(--text-muted)">🪴 ${e.streak} gün seri</div>
+        </div>
+      `;
+      wrap.appendChild(div);
+    });
+    container.appendChild(wrap);
+  } catch (err) {
+    container.innerHTML = '<p style="color:var(--text-muted);text-align:center;padding:24px">❌ Puan tablosu yüklenemedi.</p>';
+  }
+}
+
+

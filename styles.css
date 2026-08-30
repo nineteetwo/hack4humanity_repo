@@ -1362,3 +1362,176 @@ body { animation: page-fade-in 0.22s ease; }
 }
 
 .sr-only { position: absolute; width:0.0625rem; height:0.0625rem; padding:0; margin:-0.0625rem; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border-width:0; }
+
+/* ============================================================
+   FULL LEADERBOARD PANEL (iç panel — app.html içinde)
+   ============================================================ */
+.lb-full-panel {
+  padding: 24px 16px;
+}
+
+.lb-full-panel__title {
+  font-family: 'Fredoka One', cursive;
+  font-size: 22px;
+  color: var(--text-primary);
+  margin: 0 0 6px;
+}
+
+.lb-full-panel__sub {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin: 0 0 20px;
+}
+
+.lb-loading {
+  text-align: center;
+  padding: 32px 16px;
+  color: var(--text-muted);
+  font-size: 15px;
+}
+
+/* ============================================================
+   PROFILE PANEL (app.html içinde panel-profile)
+   ============================================================ */
+.prof-header {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 24px;
+  background: linear-gradient(135deg, var(--bg-panel) 0%, var(--bg-card) 100%);
+  border-radius: 20px;
+  border: 1px solid var(--border-dark);
+  margin-bottom: 0;
+}
+
+.prof-avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--purple-accent), var(--blue-main));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  font-family: 'Fredoka One', cursive;
+  color: #fff;
+  font-weight: 900;
+  flex-shrink: 0;
+  box-shadow: 0 4px 16px rgba(180, 79, 255, 0.4);
+}
+
+.prof-name {
+  font-family: 'Fredoka One', cursive;
+  font-size: 22px;
+  color: var(--text-primary);
+  margin: 0 0 4px;
+}
+
+.prof-email {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+
+.prof-joined {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.prof-stats-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+.prof-stat {
+  text-align: center;
+  padding: 14px 8px;
+  background: var(--bg-panel);
+  border-radius: 14px;
+  border: 1px solid var(--border-dark);
+}
+
+.prof-stat__val {
+  font-family: 'Fredoka One', cursive;
+  font-size: 22px;
+  color: var(--text-primary);
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.prof-stat__label {
+  font-size: 10px;
+  color: var(--text-muted);
+  font-weight: 700;
+}
+
+.prof-section {
+  padding: 0 16px 16px;
+}
+
+.prof-section-title {
+  font-family: 'Fredoka One', cursive;
+  font-size: 16px;
+  color: var(--text-primary);
+  margin: 20px 0 12px;
+}
+
+.prof-mood-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.prof-mood-dot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 12px;
+  background: var(--bg-panel);
+  border-radius: 12px;
+  font-size: 20px;
+  transition: transform 0.2s;
+  cursor: default;
+}
+.prof-mood-dot:hover { transform: translateY(-2px); }
+
+.prof-journal-entry {
+  padding: 12px 14px;
+  background: var(--bg-panel);
+  border-radius: 12px;
+  margin-bottom: 10px;
+  border-left: 3px solid var(--purple-accent);
+}
+
+.prof-journal-date {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 700;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.prof-journal-text {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+/* Shared var aliases for profil.html */
+:root {
+  --bg-primary:   var(--bg-deep);
+  --bg-card:      var(--bg-panel);
+  --bg-secondary: var(--bg-mid);
+  --border:       var(--border-dark);
+  --accent-purple: var(--purple-accent);
+  --accent-blue:   var(--blue-main);
+}
+
+[data-theme="light"] {
+  --bg-primary:   var(--bg-deep);
+  --bg-secondary: var(--bg-mid);
+  --border:       var(--border-dark);
+}

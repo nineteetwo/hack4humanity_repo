@@ -158,7 +158,7 @@ class XPBurst {
 }
 
 /* ============================================================
-   STATS PANEL — User stats with localStorage persistence
+   STATS PANEL — User stats, backend-first with localStorage cache
    ============================================================ */
 class StatsPanel {
   static STORAGE_KEY = 'dolphy-stats';
@@ -168,7 +168,7 @@ class StatsPanel {
       const saved = localStorage.getItem(StatsPanel.STORAGE_KEY);
       if (saved) return JSON.parse(saved);
     } catch (e) { /* ignore */ }
-    return { streak: 3, hp: 5, xp: 120, gems: 40 };
+    return { streak: 0, hp: 5, xp: 0, gems: 0 };
   }
 
   static _save(state) {
@@ -187,6 +187,32 @@ class StatsPanel {
     setEl('d-gems',   gems);
   }
 
+  /**
+   * Backend'den güncel user stats'ı çekip localStorage cache'ini güncelle.
+   * Sadece token varsa çağrılır (public sayfalar için sessizce atlar).
+   */
+  static async syncFromAPI() {
+    if (typeof API === 'undefined' || !API.isLoggedIn()) return;
+    try {
+      const user = await API.users.me();
+      const s = {
+        streak: user.streak,
+        hp:     user.hp,
+        xp:     user.xp,
+        gems:   user.gems,
+        name:   user.name,
+        email:  user.email,
+      };
+      StatsPanel._save(s);
+      StatsPanel.update();
+    } catch (e) {
+      /* Bağlantı yoksa cache'deki değerleri göster — hata sessizce atlanır */
+      console.warn('[StatsPanel] API sync failed, using cache:', e.message);
+    }
+  }
+
+  /* Aşağıdaki metodlar quest.js'den hâlâ çağrılıyor, backward compat için tutuldu.
+     Gerçek XP/streak güncellemesi artık backend'de yapılıyor (quest/lesson complete). */
   static addXP(amount) {
     const s = StatsPanel.state;
     s.xp   += amount;
@@ -215,7 +241,7 @@ class StatsPanel {
 }
 
 /* ============================================================
-   LESSON TRACKER — Tracks completed lessons in localStorage
+   LESSON TRACKER — Tracks completed lessons, backend-first
    ============================================================ */
 class LessonTracker {
   static STORAGE_KEY = 'dolphy-completed';
@@ -227,6 +253,7 @@ class LessonTracker {
     } catch (e) { return []; }
   }
 
+  /** Yalnız cache'i günceller — asıl kayıt quest.js üzerinden API'ye gider. */
   static markComplete(lessonId) {
     const completed = LessonTracker.getCompleted();
     if (!completed.includes(lessonId)) {
@@ -241,6 +268,20 @@ class LessonTracker {
 
   static getCompletedCount() {
     return LessonTracker.getCompleted().length;
+  }
+
+  /**
+   * Backend'deki tamamlanan lesson listesini çekip cache'i güncelle.
+   * Sadece token varsa çağrılır.
+   */
+  static async syncFromAPI() {
+    if (typeof API === 'undefined' || !API.isLoggedIn()) return;
+    try {
+      const completed = await API.lessons.getCompleted();
+      localStorage.setItem(LessonTracker.STORAGE_KEY, JSON.stringify(completed));
+    } catch (e) {
+      console.warn('[LessonTracker] API sync failed, using cache:', e.message);
+    }
   }
 }
 
@@ -279,5 +320,15 @@ class App {
    ============================================================ */
 document.addEventListener('DOMContentLoaded', () => {
   ThemeManager.init();
-  StatsPanel.update();
+  StatsPanel.update();      // Önce cache'deki değerleri göster (hızlı)
+  StatsPanel.syncFromAPI(); // Sonra backend'den gerçek değerleri çek
+  LessonTracker.syncFromAPI();
+
+  /* Logout butonları varsa bağla */
+  document.querySelectorAll('[data-action="logout"]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      if (typeof API !== 'undefined') API.auth.logout();
+    });
+  });
 });

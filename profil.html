@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="tr" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Profilim — Dolphy</title>
+  <meta name="description" content="Dolphy wellness profilin, puanların, ruh hali geçmişin ve günlük yazıların." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    /* ── Profil sayfasına özel stiller ── */
+    .profil-page {
+      min-height: 100vh;
+      background: var(--bg-primary);
+      padding: 0 0 60px;
+    }
+
+    .profil-topbar {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 20px 24px;
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(12px);
+    }
+
+    .profil-topbar__back {
+      background: var(--bg-secondary);
+      border: none;
+      color: var(--text-primary);
+      font-size: 20px;
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+    }
+    .profil-topbar__back:hover { background: var(--accent-purple); }
+
+    .profil-topbar__logo {
+      font-family: 'Fredoka One', cursive;
+      font-size: 22px;
+      color: var(--text-primary);
+    }
+
+    .profil-topbar__theme {
+      margin-left: auto;
+      background: none;
+      border: none;
+      font-size: 20px;
+      cursor: pointer;
+    }
+
+    /* Hero bölümü */
+    .profil-hero {
+      background: linear-gradient(135deg, var(--accent-purple) 0%, var(--accent-blue) 100%);
+      padding: 48px 24px 80px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .profil-hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 30% 50%, rgba(255,255,255,0.08) 0%, transparent 60%);
+    }
+
+    .profil-hero__avatar {
+      width: 96px;
+      height: 96px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 40px;
+      font-weight: 900;
+      color: #fff;
+      margin: 0 auto 16px;
+      border: 4px solid rgba(255,255,255,0.4);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+      position: relative;
+      z-index: 1;
+      font-family: 'Fredoka One', cursive;
+    }
+
+    .profil-hero__name {
+      font-family: 'Fredoka One', cursive;
+      font-size: 28px;
+      color: #fff;
+      margin: 0 0 6px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .profil-hero__email {
+      font-size: 14px;
+      color: rgba(255,255,255,0.75);
+      margin: 0 0 8px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .profil-hero__joined {
+      font-size: 12px;
+      color: rgba(255,255,255,0.6);
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Stats kartları */
+    .profil-content {
+      max-width: 720px;
+      margin: -40px auto 0;
+      padding: 0 20px;
+      position: relative;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .profil-stats-card {
+      background: var(--bg-card);
+      border-radius: 20px;
+      padding: 24px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      border: 1px solid var(--border);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+    }
+
+    .profil-stat {
+      text-align: center;
+      padding: 12px 8px;
+      background: var(--bg-secondary);
+      border-radius: 14px;
+    }
+
+    .profil-stat__val {
+      font-family: 'Fredoka One', cursive;
+      font-size: 24px;
+      color: var(--text-primary);
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+
+    .profil-stat__label {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    /* Bölüm kartları */
+    .profil-card {
+      background: var(--bg-card);
+      border-radius: 20px;
+      padding: 24px;
+      border: 1px solid var(--border);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    }
+
+    .profil-card__title {
+      font-family: 'Fredoka One', cursive;
+      font-size: 18px;
+      color: var(--text-primary);
+      margin: 0 0 18px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Mood geçmişi */
+    .mood-timeline {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .mood-dot {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      padding: 10px 12px;
+      background: var(--bg-secondary);
+      border-radius: 12px;
+      min-width: 56px;
+      transition: transform 0.2s;
+    }
+    .mood-dot:hover { transform: translateY(-2px); }
+
+    .mood-dot__emoji { font-size: 22px; }
+    .mood-dot__date { font-size: 10px; color: var(--text-muted); }
+
+    /* Journal */
+    .journal-entry {
+      padding: 16px;
+      background: var(--bg-secondary);
+      border-radius: 14px;
+      margin-bottom: 12px;
+      border-left: 3px solid var(--accent-purple);
+    }
+
+    .journal-entry__date {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-weight: 700;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .journal-entry__text {
+      font-size: 14px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    /* Tamamlanan dersler */
+    .lessons-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: 10px;
+    }
+
+    .lesson-chip {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      padding: 14px 10px;
+      background: var(--bg-secondary);
+      border-radius: 14px;
+      font-size: 12px;
+      color: var(--text-secondary);
+      text-align: center;
+      border: 1px solid transparent;
+      transition: all 0.2s;
+    }
+    .lesson-chip.done {
+      border-color: #22c55e44;
+      background: rgba(34,197,94,0.08);
+    }
+    .lesson-chip__emoji { font-size: 22px; }
+    .lesson-chip__name { font-weight: 700; color: var(--text-primary); font-size: 11px; }
+    .lesson-chip__xp { font-size: 10px; color: var(--accent-green, #22c55e); font-weight: 700; }
+
+    /* Boş durum */
+    .empty-state {
+      text-align: center;
+      padding: 32px 16px;
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+
+    .empty-state__icon { font-size: 36px; margin-bottom: 8px; }
+
+    /* Loading */
+    .profil-loading {
+      text-align: center;
+      padding: 80px 24px;
+      color: var(--text-muted);
+      font-size: 18px;
+    }
+
+    @media (max-width: 480px) {
+      .profil-stats-card { grid-template-columns: repeat(2, 1fr); }
+      .profil-hero { padding: 36px 20px 72px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="profil-page">
+
+    <!-- Topbar -->
+    <header class="profil-topbar">
+      <button class="profil-topbar__back" onclick="history.length > 1 ? history.back() : (window.location.href='app.html')" aria-label="Geri dön">←</button>
+      <div class="profil-topbar__logo">🐬 Dolphy</div>
+      <button class="profil-topbar__theme theme-toggle" onclick="ThemeManager.toggle()" aria-label="Tema değiştir">
+        <span class="theme-toggle__icon">🌙</span>
+      </button>
+    </header>
+
+    <!-- Hero (kullanıcı bilgileri) -->
+    <div class="profil-hero" id="profil-hero">
+      <div class="profil-hero__avatar" id="hero-avatar">🐬</div>
+      <h1 class="profil-hero__name" id="hero-name">Yükleniyor...</h1>
+      <div class="profil-hero__email" id="hero-email"></div>
+      <div class="profil-hero__joined" id="hero-joined"></div>
+    </div>
+
+    <!-- İçerik -->
+    <div class="profil-content" id="profil-content">
+      <div class="profil-loading">⏳ Profil yükleniyor...</div>
+    </div>
+
+  </div>
+
+  <script src="api.js"></script>
+  <script src="app.js"></script>
+  <script>
+    "use strict";
+
+    const LESSON_INFO = {
+      l1:  { title: 'Sabah Nefesi',    emoji: '🌅', xp: 10 },
+      l2:  { title: 'Ruh Hali',        emoji: '💭', xp: 12 },
+      l3:  { title: 'İlk Kilometre!',  emoji: '🏅', xp: 15 },
+      l4:  { title: 'Günlük',          emoji: '📝', xp: 14 },
+      l5:  { title: 'Yürüyüş',         emoji: '🚶', xp: 16 },
+      l6:  { title: 'Haftalık Zorluk', emoji: '⚡', xp: 30 },
+      l7:  { title: 'Bağlantı',        emoji: '💬', xp: 12 },
+      l8:  { title: 'Beden Tarama',    emoji: '🧘', xp: 18 },
+      l9:  { title: 'Hidrasyon',       emoji: '💧', xp: 20 },
+      l10: { title: 'Hafta Tamam!',    emoji: '🌟', xp: 20 },
+      l11: { title: 'Uyku Rutini',     emoji: '🌙', xp: 22 },
+      l12: { title: 'Olumlamalar',     emoji: '💪', xp: 24 },
+      l13: { title: 'Ay Hedesi!',      emoji: '🏆', xp: 50 },
+    };
+
+    const MOOD_EMOJIS = { 1: '😢', 2: '😕', 3: '😐', 4: '🙂', 5: '😄' };
+    const MOOD_LABELS = { 1: 'Çok Kötü', 2: 'Kötü', 3: 'Orta', 4: 'İyi', 5: 'Harika' };
+
+    async function loadProfile() {
+      if (!API.isLoggedIn()) {
+        window.location.href = 'login.html';
+        return;
+      }
+
+      try {
+        const [user, submissions, completedIds] = await Promise.all([
+          API.users.me(),
+          API.quests.mySubmissions(),
+          API.lessons.getCompleted(),
+        ]);
+
+        // --- Hero bölümü ---
+        const avatarEl = document.getElementById('hero-avatar');
+        const nameEl   = document.getElementById('hero-name');
+        const emailEl  = document.getElementById('hero-email');
+        const joinedEl = document.getElementById('hero-joined');
+
+        avatarEl.textContent = user.name ? user.name[0].toUpperCase() : '🐬';
+        nameEl.textContent   = user.name || 'Kullanıcı';
+        emailEl.textContent  = user.email;
+        joinedEl.textContent = '📅 Katıldı: ' + new Date(user.created_at)
+          .toLocaleDateString('tr-TR', { year: 'numeric', month: 'long', day: 'numeric' });
+
+        // --- İstatistikler ---
+        const statsHTML = `
+          <div class="profil-stats-card">
+            <div class="profil-stat">
+              <div class="profil-stat__val">${user.xp.toLocaleString('tr-TR')}</div>
+              <div class="profil-stat__label">⚡ XP Puan</div>
+            </div>
+            <div class="profil-stat">
+              <div class="profil-stat__val">${user.streak}</div>
+              <div class="profil-stat__label">🪴 Gün Serisi</div>
+            </div>
+            <div class="profil-stat">
+              <div class="profil-stat__val">${user.gems}</div>
+              <div class="profil-stat__label">💎 Gem</div>
+            </div>
+            <div class="profil-stat">
+              <div class="profil-stat__val">${completedIds.length}</div>
+              <div class="profil-stat__label">✅ Görev</div>
+            </div>
+          </div>
+        `;
+
+        // --- Ruh hali geçmişi ---
+        const moods = submissions
+          .filter(s => s.task_type === 'mood' && s.mood_value)
+          .slice(0, 10)
+          .reverse();
+
+        const moodHTML = moods.length
+          ? `<div class="mood-timeline">
+              ${moods.map(m => `
+                <div class="mood-dot">
+                  <div class="mood-dot__emoji">${MOOD_EMOJIS[m.mood_value] || '😐'}</div>
+                  <div class="mood-dot__date">${new Date(m.submitted_at).toLocaleDateString('tr-TR', { day:'2-digit', month:'2-digit' })}</div>
+                </div>`).join('')}
+             </div>`
+          : `<div class="empty-state"><div class="empty-state__icon">💡</div>Henüz ruh hali kaydı yok. Ruh Hali görevi tamamladıkça burada görünecek!</div>`;
+
+        // --- Journal yazıları ---
+        const journals = submissions.filter(s => s.task_type === 'journal' && s.text_content);
+        const journalHTML = journals.length
+          ? journals.slice(0, 5).map(j => `
+              <div class="journal-entry">
+                <div class="journal-entry__date">${new Date(j.submitted_at).toLocaleDateString('tr-TR', { weekday:'long', year:'numeric', month:'long', day:'numeric' })}</div>
+                <div class="journal-entry__text">${j.text_content}</div>
+              </div>`).join('')
+          : `<div class="empty-state"><div class="empty-state__icon">📝</div>Henüz günlük yazısı yok. Günlük görevini tamamladıktan sonra buraya eklenir!</div>`;
+
+        // --- Tamamlanan dersler ---
+        const allLessonIds = Object.keys(LESSON_INFO);
+        const lessonsHTML = `
+          <div class="lessons-grid">
+            ${allLessonIds.map(id => {
+              const info = LESSON_INFO[id];
+              const done = completedIds.includes(id);
+              return `
+                <div class="lesson-chip ${done ? 'done' : ''}">
+                  <div class="lesson-chip__emoji">${done ? '✅' : info.emoji}</div>
+                  <div class="lesson-chip__name">${info.title}</div>
+                  <div class="lesson-chip__xp">${done ? '+' + info.xp + ' XP' : 'Kilitli'}</div>
+                </div>`;
+            }).join('')}
+          </div>`;
+
+        // --- Çıkış butonu ---
+        const logoutHTML = `
+          <div style="text-align:center;padding:8px 0 16px">
+            <button class="clay-btn clay-btn--ghost" data-action="logout" id="btn-logout-profile">
+              🚪 Çıkış Yap
+            </button>
+          </div>`;
+
+        // --- Hepsini yerleştir ---
+        const content = document.getElementById('profil-content');
+        content.innerHTML = `
+          ${statsHTML}
+
+          <div class="profil-card">
+            <h2 class="profil-card__title">💡 Ruh Hali Geçmişi</h2>
+            ${moodHTML}
+          </div>
+
+          <div class="profil-card">
+            <h2 class="profil-card__title">📝 Günlük Yazıları</h2>
+            ${journalHTML}
+          </div>
+
+          <div class="profil-card">
+            <h2 class="profil-card__title">🌿 Görevler (${completedIds.length}/${allLessonIds.length})</h2>
+            ${lessonsHTML}
+          </div>
+
+          ${logoutHTML}
+        `;
+
+        // Çıkış butonu
+        document.getElementById('btn-logout-profile')?.addEventListener('click', () => {
+          API.auth.logout();
+        });
+
+      } catch (err) {
+        document.getElementById('profil-content').innerHTML = `
+          <div class="profil-card" style="text-align:center;padding:48px 24px">
+            <div style="font-size:40px;margin-bottom:12px">❌</div>
+            <h2>Profil yüklenemedi</h2>
+            <p style="color:var(--text-muted)">${err.message}</p>
+            <button class="clay-btn clay-btn--ghost" onclick="loadProfile()" style="margin-top:16px">Tekrar Dene</button>
+          </div>`;
+        console.error('[Profil]', err);
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      ThemeManager.init();
+      loadProfile();
+    });
+  </script>
+</body>
+</html>
